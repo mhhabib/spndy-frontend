@@ -12,9 +12,21 @@ import { ArrowLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import Footer from "@/components/Footer";
+import CategoryManagement from "@/components/CategoryManagement";
 
 const Settings = () => {
   const navigate = useNavigate();
+
+  // Sample initial categories - in a real app, these would come from an API or context
+  const initialCategories = [
+    { id: "1", name: "Housing" },
+    { id: "2", name: "Food" },
+    { id: "3", name: "Transport" },
+    { id: "4", name: "Medical" },
+    { id: "5", name: "Donation" },
+    { id: "6", name: "Electronics" },
+    { id: "7", name: "Others" },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -34,6 +46,8 @@ const Settings = () => {
       </header>
       
       <main className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+        <CategoryManagement initialCategories={initialCategories} />
+        
         <Card className="card-glass w-full animate-fade-in">
           <CardHeader>
             <CardTitle>General Settings</CardTitle>

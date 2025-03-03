@@ -53,13 +53,6 @@ const Navbar = ({ showEditControls, onToggleEditControls }: NavbarProps) => {
             </Button>
           </Link>
 
-          <Link to="/settings">
-            <Button size="icon" variant="ghost" className="nav-icon relative">
-              <Settings className="h-5 w-5" />
-              <span className="sr-only">Settings</span>
-            </Button>
-          </Link>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
@@ -74,14 +67,11 @@ const Navbar = ({ showEditControls, onToggleEditControls }: NavbarProps) => {
                 </p>
               </div>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                Profile
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link to="/my-expenses">My Expenses</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                Settings
+              <DropdownMenuItem className="cursor-pointer" asChild>
+                <Link to="/settings">Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer text-destructive">

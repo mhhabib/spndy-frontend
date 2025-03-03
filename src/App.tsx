@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import AddExpense from "./pages/AddExpense";
 import Settings from "./pages/Settings";
 import Summary from "./pages/Summary";
+import MyExpenses from "./pages/MyExpenses";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/add-expense" element={<AddExpense />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/summary" element={<Summary />} />
+          <Route path="/my-expenses" element={<MyExpenses />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
