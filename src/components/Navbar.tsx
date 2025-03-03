@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -23,6 +23,20 @@ const Navbar = ({ showEditControls, onToggleEditControls }: NavbarProps) => {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  useEffect(() => {
+    // Load edit mode state from localStorage when component mounts
+    const savedEditMode = localStorage.getItem('editMode');
+    if (savedEditMode !== null) {
+      onToggleEditControls(savedEditMode === 'true');
+    }
+  }, [onToggleEditControls]);
+
+  const handleToggleEditControls = (value: boolean) => {
+    // Save to localStorage when toggled
+    localStorage.setItem('editMode', value.toString());
+    onToggleEditControls(value);
+  };
 
   const handleLogout = () => {
     logout();
@@ -49,7 +63,7 @@ const Navbar = ({ showEditControls, onToggleEditControls }: NavbarProps) => {
                 <span className="text-sm text-muted-foreground mr-2 hidden sm:inline-block">Edit Mode</span>
                 <Switch
                   checked={showEditControls}
-                  onCheckedChange={onToggleEditControls}
+                  onCheckedChange={handleToggleEditControls}
                   className="data-[state=checked]:bg-primary"
                 />
               </div>

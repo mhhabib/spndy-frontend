@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import YearSummary from "@/components/YearSummary";
 import MonthSummary from "@/components/MonthSummary";
@@ -8,7 +8,10 @@ import ExpenseList, { Expense } from "@/components/ExpenseList";
 import Footer from "@/components/Footer";
 
 const Index = () => {
-  const [showEditControls, setShowEditControls] = useState(false);
+  const [showEditControls, setShowEditControls] = useState(() => {
+    const savedEditMode = localStorage.getItem('editMode');
+    return savedEditMode ? savedEditMode === 'true' : false;
+  });
   const [searchQuery, setSearchQuery] = useState("");
   const [expenses, setExpenses] = useState<Expense[]>([
     {
