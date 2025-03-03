@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { Plus, Settings, User } from "lucide-react";
+import { Plus, Settings, User, BarChart } from "lucide-react";
 
 interface NavbarProps {
   showEditControls: boolean;
@@ -38,6 +38,13 @@ const Navbar = ({ showEditControls, onToggleEditControls }: NavbarProps) => {
               className="data-[state=checked]:bg-primary"
             />
           </div>
+
+          <Link to="/summary">
+            <Button size="icon" variant="ghost" className="nav-icon relative">
+              <BarChart className="h-5 w-5" />
+              <span className="sr-only">Summary</span>
+            </Button>
+          </Link>
 
           <Link to="/add-expense">
             <Button size="icon" variant="ghost" className="nav-icon relative">
