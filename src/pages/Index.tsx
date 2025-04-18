@@ -24,10 +24,14 @@ const Index = () => {
 				throw new Error(`API request failed with status ${response.status}`);
 			}
 			const data: ApiResponse = await response.json();
-			const sortedExpenses = data.expenses.sort(
-				(a, b) =>
-					new Date(b.date).getTime() - new Date(a.date).getTime()
-			);
+			const sortedExpenses = data.expenses.sort((a, b) => {
+				const dateDiff =
+					new Date(b.date).getTime() - new Date(a.date).getTime();
+				if (dateDiff !== 0) return dateDiff;
+				return (
+					new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+				);
+			});
 			setExpenses(sortedExpenses);
 		} catch (err) {
 			console.error('Error fetching expense data:', err);
