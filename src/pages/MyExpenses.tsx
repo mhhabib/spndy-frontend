@@ -1,174 +1,295 @@
+import { useState, useEffect } from 'react';
+import { DateRange } from 'react-day-picker';
+import { format } from 'date-fns';
+import { Search, Calendar } from 'lucide-react';
+import axios from 'axios';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
+import ExpenseList, { Expense } from '@/components/ExpenseList';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { colors, formatCurrency } from '@/utils/utils';
+import {
+	PieChart,
+	Pie,
+	Cell,
+	ResponsiveContainer,
+	Legend,
+	Tooltip,
+} from 'recharts';
+import { useAuth } from '@/contexts/AuthContext';
+import { API_BASE_URL } from '@/config/Config';
 
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { ArrowLeft } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
-import { Expense } from "@/components/ExpenseList";
-import ExpenseList from "@/components/ExpenseList";
-import ExpenseSearch from "@/components/ExpenseSearch";
-import Footer from "@/components/Footer";
-
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A259FF', '#FF6B6B', '#4CAF50'];
+interface CategoryData {
+	name: string;
+	value: number;
+	color: string;
+}
 
 const MyExpenses = () => {
-  const navigate = useNavigate();
-  const [showEditControls, setShowEditControls] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [timeframe, setTimeframe] = useState("all");
+	const [searchQuery, setSearchQuery] = useState('');
+	const [dateRange, setDateRange] = useState<DateRange | undefined>({
+		from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+		to: new Date(),
+	});
+	const [totalExpenses, setTotalExpenses] = useState(0);
+	const [expenses, setExpenses] = useState<Expense[]>([]);
+	const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
 
-  // Sample data - in a real app, this would come from an API or context
-  const [expenses] = useState<Expense[]>([
-    { id: "1", description: "Rent", category: "Housing", amount: 1200, date: "2023-06-01" },
-    { id: "2", description: "Groceries", category: "Food", amount: 250, date: "2023-06-05" },
-    { id: "3", description: "Car payment", category: "Transport", amount: 350, date: "2023-06-10" },
-    { id: "4", description: "Internet", category: "Utilities", amount: 80, date: "2023-06-15" },
-    { id: "5", description: "Doctors visit", category: "Medical", amount: 100, date: "2023-06-20" },
-    { id: "6", description: "Donation", category: "Charity", amount: 50, date: "2023-06-25" },
-  ]);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  const filteredExpenses = expenses.filter(expense => 
-    expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    expense.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+	const { email } = useAuth();
 
-  const categoryTotals = expenses.reduce((acc, expense) => {
-    if (!acc[expense.category]) {
-      acc[expense.category] = 0;
-    }
-    acc[expense.category] += expense.amount;
-    return acc;
-  }, {} as Record<string, number>);
+	const isEditModeOn = localStorage.getItem('editMode') === 'true';
 
-  const chartData = Object.keys(categoryTotals).map((category) => ({
-    name: category,
-    value: categoryTotals[category],
-  }));
+	useEffect(() => {
+		const fetchExpenses = async () => {
+			if (!dateRange?.from || !dateRange?.to) return;
 
-  const totalAmount = Object.values(categoryTotals).reduce((sum, amount) => sum + amount, 0);
+			setLoading(true);
+			try {
+				const fromDate = format(dateRange.from, 'yyyy-MM-dd');
+				const toDate = format(dateRange.to, 'yyyy-MM-dd');
 
-  const handleDeleteExpense = (id: string) => {
-    // In a real app, this would call an API to delete the expense
-    console.log("Delete expense with ID:", id);
-  };
+				const response = await axios.get(
+					`${API_BASE_URL}/reports/myexpense/range`,
+					{
+						params: {
+							fromDate,
+							toDate,
+							email: email, // Adding the email as a parameter
+						},
+						headers: {
+							Authorization: `Bearer ${localStorage.getItem('access_token')}`, // Adding authorization header
+						},
+					}
+				);
 
-  return (
-    <div className="min-h-screen flex flex-col">
-      <header className="bg-background/80 backdrop-blur-md border-b border-border/40 w-full px-4 py-3 sm:px-6">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => navigate("/")}
-              className="mr-4"
-            >
-              <ArrowLeft className="h-5 w-5" />
-              <span className="sr-only">Back</span>
-            </Button>
-            <h1 className="text-lg font-semibold">My Expenses</h1>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={showEditControls}
-              onCheckedChange={setShowEditControls}
-              className="data-[state=checked]:bg-primary"
-            />
-            <span className="text-sm text-muted-foreground">Edit Mode</span>
-          </div>
-        </div>
-      </header>
+				setTotalExpenses(response.data.totalExpense);
+				const categories: CategoryData[] =
+					response.data.categoricalExpenses.map((item) => ({
+						name: item.categoryName,
+						value: item.total,
+						color: colors[Math.floor(Math.random() * colors.length)],
+					}));
 
-      <main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="card-glass lg:col-span-2 animate-fade-in">
-            <CardHeader className="pb-2">
-              <div className="flex justify-between items-center">
-                <CardTitle className="text-lg font-medium">Expense Summary</CardTitle>
-                <Select 
-                  value={timeframe} 
-                  onValueChange={setTimeframe}
-                >
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Select timeframe" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="year">This Year</SelectItem>
-                    <SelectItem value="month">This Month</SelectItem>
-                    <SelectItem value="week">This Week</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center mb-4">
-                <h3 className="text-sm font-medium text-muted-foreground">Total Expenses</h3>
-                <p className="text-3xl font-bold">${totalAmount.toFixed(2)}</p>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  {Object.entries(categoryTotals).map(([category, amount]) => (
-                    <div key={category} className="flex justify-between items-center">
-                      <div className="flex items-center">
-                        <div className="w-3 h-3 rounded-full mr-2" style={{ 
-                          backgroundColor: COLORS[Object.keys(categoryTotals).indexOf(category) % COLORS.length] 
-                        }}></div>
-                        <span className="text-sm">{category}</span>
-                      </div>
-                      <span className="font-medium">${amount.toFixed(2)}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="h-[200px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={chartData}
-                        cx="50%"
-                        cy="50%"
-                        labelLine={false}
-                        outerRadius={80}
-                        fill="#8884d8"
-                        dataKey="value"
-                      >
-                        {chartData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip formatter={(value) => `$${value}`} />
-                      <Legend />
-                    </PieChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+				setCategoryData(categories);
 
-        <ExpenseSearch onSearch={setSearchQuery} />
-        
-        <ExpenseList 
-          expenses={filteredExpenses} 
-          showEditControls={showEditControls} 
-          onDeleteExpense={handleDeleteExpense} 
-        />
-      </main>
+				const sortedExpenses = response.data.expenses.sort(
+					(a, b) =>
+						new Date(b.createdDate).getTime() -
+						new Date(a.createdDate).getTime()
+				);
+				setExpenses(sortedExpenses);
 
-      <Footer />
-    </div>
-  );
+				setError(null);
+			} catch (err) {
+				console.error('Error fetching expenses:', err);
+				setError('Failed to load expense data');
+			} finally {
+				setLoading(false);
+			}
+		};
+		fetchExpenses();
+	}, [dateRange]);
+
+	const filteredExpenses = expenses.filter((expense) =>
+		expense.description.toLowerCase().includes(searchQuery.toLowerCase())
+	);
+
+	const handleDeleteExpense = (id: number) => {
+		setExpenses(expenses.filter((expense) => expense.id !== id));
+	};
+
+	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchQuery(e.target.value);
+	};
+
+	const formatDateRange = () => {
+		if (!dateRange?.from) return 'Select date range';
+		if (!dateRange.to) return `From ${format(dateRange.from, 'PPP')}`;
+		return `${format(dateRange.from, 'PPP')} - ${format(dateRange.to, 'PPP')}`;
+	};
+	const formatDate = (date) => {
+		return new Intl.DateTimeFormat('en-US', {
+			year: '2-digit',
+			month: 'long',
+			day: 'numeric',
+		}).format(date);
+	};
+
+	return (
+		<div className="min-h-screen flex flex-col">
+			<Navbar />
+
+			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+					<h1 className="text-2xl font-bold">My Expenses</h1>
+
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								variant="outline"
+								className="w-full sm:w-auto justify-start gap-2"
+							>
+								<Calendar className="h-4 w-4" />
+								{formatDateRange()}
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-auto p-0" align="end">
+							<CalendarComponent
+								initialFocus
+								mode="range"
+								defaultMonth={dateRange?.from}
+								selected={dateRange}
+								onSelect={setDateRange}
+								numberOfMonths={2}
+								className="bg-white rounded-md border border-border/50"
+							/>
+						</PopoverContent>
+					</Popover>
+				</div>
+
+				<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:100ms]">
+					<CardHeader className="pb-2">
+						<CardTitle className="text-lg font-medium flex justify-between items-center">
+							<span>
+								Expenses for {formatDate(dateRange?.from)} -{' '}
+								{formatDate(dateRange?.to)}
+							</span>
+							<span className="text-primary">
+								{loading ? 'Loading...' : formatCurrency(totalExpenses || 0)}
+							</span>
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						{error && (
+							<div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+								{error}
+							</div>
+						)}
+						{!error && (
+							<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+								<div className="md:col-span-3 h-[240px]">
+									{loading ? (
+										<div className="flex items-center justify-center h-full">
+											<p className="text-muted-foreground">Loading...</p>
+										</div>
+									) : categoryData.length > 0 ? (
+										<ResponsiveContainer width="100%" height="100%">
+											<PieChart>
+												<Pie
+													data={categoryData}
+													cx="50%"
+													cy="50%"
+													innerRadius={60}
+													outerRadius={80}
+													paddingAngle={2}
+													dataKey="value"
+												>
+													{categoryData.map((entry, index) => (
+														<Cell key={`cell-${index}`} fill={entry.color} />
+													))}
+												</Pie>
+												<Tooltip
+													formatter={(value: number) => formatCurrency(value)}
+													contentStyle={{
+														borderRadius: '8px',
+														backgroundColor: 'rgba(255, 255, 255, 0.9)',
+														boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+														border: 'none',
+													}}
+												/>
+												<Legend
+													layout="vertical"
+													verticalAlign="middle"
+													align="right"
+													wrapperStyle={{ fontSize: '12px' }}
+												/>
+											</PieChart>
+										</ResponsiveContainer>
+									) : (
+										<div className="flex items-center justify-center h-full">
+											<p className="text-muted-foreground">
+												No expenses found for this period
+											</p>
+										</div>
+									)}
+								</div>
+								<div className="md:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
+									{categoryData.map((category) => (
+										<div
+											key={category.name}
+											className="p-3 rounded-lg bg-white/50 backdrop-blur-sm border border-border/50 shadow-sm hover-scale"
+										>
+											<div className="flex items-center space-x-2 mb-1">
+												<div
+													className="w-3 h-3 rounded-full"
+													style={{ backgroundColor: category.color }}
+												></div>
+												<span className="text-xs font-medium">
+													{category.name}
+												</span>
+											</div>
+											<p className="text-l font-semibold">
+												{formatCurrency(category.value)}
+											</p>
+											<p className="text-xs text-muted-foreground">
+												{((category.value / totalExpenses) * 100).toFixed(2)}%
+												of total
+											</p>
+										</div>
+									))}
+									{!loading && categoryData.length === 0 && (
+										<div className="p-3 col-span-3 rounded-lg bg-white/50 backdrop-blur-sm border border-border/50 shadow-sm">
+											<p className="text-center text-muted-foreground">
+												No expense data available for the selected period
+											</p>
+										</div>
+									)}
+								</div>
+							</div>
+						)}
+					</CardContent>
+				</Card>
+
+				<div className="relative w-full animate-slide-in-bottom [animation-delay:300ms]">
+					<div className="relative">
+						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+						<Input
+							type="text"
+							placeholder="Search expenses..."
+							value={searchQuery}
+							onChange={handleSearch}
+							className="pl-10 py-6 bg-white/70 backdrop-blur-md border-border/50 focus-visible:ring-primary"
+						/>
+					</div>
+				</div>
+
+				{loading ? (
+					<div className="text-center p-6">
+						<p>Loading expenses...</p>
+					</div>
+				) : (
+					<ExpenseList
+						expenses={filteredExpenses}
+						isEditModeOn={isEditModeOn}
+						onDeleteExpense={handleDeleteExpense}
+					/>
+				)}
+			</main>
+
+			<Footer />
+		</div>
+	);
 };
 
 export default MyExpenses;
-
-import { Switch } from "@/components/ui/switch";

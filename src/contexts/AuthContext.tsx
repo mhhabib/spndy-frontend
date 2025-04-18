@@ -1,95 +1,136 @@
+import React, {
+	createContext,
+	useContext,
+	useState,
+	ReactNode,
+	useEffect,
+} from 'react';
+import { jwtDecode } from 'jwt-decode';
+import { API_BASE_URL } from '@/config/Config';
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
+interface DecodedToken {
+	email: string;
+	username: string;
 }
 
 interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  signup: (name: string, email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+	token: string | null;
+	username: string | null;
+	email: string | null;
+
+	isAuthenticated: boolean;
+	login: (email: string, password: string) => Promise<boolean>;
+	signup: (
+		username: string,
+		email: string,
+		password: string
+	) => Promise<boolean>;
+	logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+	const [token, setToken] = useState<string | null>(() =>
+		localStorage.getItem('access_token')
+	);
+	const [username, setUsername] = useState<string | null>(null);
+	const [email, setEmail] = useState<string | null>(null);
+	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
 
-  const isAuthenticated = !!user;
+	const updateTokenInfo = (newToken: string | null) => {
+		if (!newToken) {
+			setUsername(null);
+			setEmail(null);
+			setIsAuthenticated(false);
+			return;
+		}
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // This is a mock login function. In a real app, you would call an API.
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // For demo purposes, any non-empty email/password will work
-      if (email && password) {
-        const newUser = {
-          id: "user-" + Math.random().toString(36).substr(2, 9),
-          name: email.split('@')[0], // Use part of email as name for demo
-          email: email
-        };
-        
-        setUser(newUser);
-        localStorage.setItem("user", JSON.stringify(newUser));
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Login error:", error);
-      return false;
-    }
-  };
+		try {
+			const decoded = jwtDecode<DecodedToken>(newToken);
+			setUsername(decoded.username);
+			setEmail(decoded.email);
+			setIsAuthenticated(true);
+		} catch {
+			setUsername(null);
+			setEmail(null);
+			setIsAuthenticated(false);
+		}
+	};
 
-  const signup = async (name: string, email: string, password: string): Promise<boolean> => {
-    // This is a mock signup function. In a real app, you would call an API.
-    try {
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      if (name && email && password) {
-        const newUser = {
-          id: "user-" + Math.random().toString(36).substr(2, 9),
-          name: name,
-          email: email
-        };
-        
-        setUser(newUser);
-        localStorage.setItem("user", JSON.stringify(newUser));
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Signup error:", error);
-      return false;
-    }
-  };
+	// Update state when token changes
+	useEffect(() => {
+		updateTokenInfo(token);
+	}, [token]);
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
+	const login = async (email: string, password: string): Promise<boolean> => {
+		// This is a mock login function. In a real app, you would call an API.
+		try {
+			const response = await fetch(`${API_BASE_URL}/auth/login`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ email, password }),
+			});
+			console.log('Response: ', response);
+			if (response.ok) {
+				const data = await response.json();
+				localStorage.setItem('access_token', data.token);
+				setToken(data.token);
+				return true;
+			}
+			return false;
+		} catch (error) {
+			console.error('Login error:', error);
+			return false;
+		}
+	};
 
-  return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+	const signup = async (
+		username: string,
+		email: string,
+		password: string
+	): Promise<boolean> => {
+		try {
+			const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ username, email, password }),
+			});
+			console.log('Response ', response);
+			if (response.ok) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (error) {
+			return false;
+		}
+	};
+
+	const logout = () => {
+		setToken(null);
+		localStorage.removeItem('access_token');
+	};
+
+	return (
+		<AuthContext.Provider
+			value={{ token, username, email, isAuthenticated, login, signup, logout }}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+	const context = useContext(AuthContext);
+	if (context === undefined) {
+		throw new Error('useAuth must be used within an AuthProvider');
+	}
+	return context;
 }

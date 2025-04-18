@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="border-t border-border/40 pt-6">
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
-              &copy; {currentYear} ExpenseTracker. All rights reserved.
+              &copy; {currentYear} Spndy. All rights reserved.
             </p>
           </div>
         </div>
