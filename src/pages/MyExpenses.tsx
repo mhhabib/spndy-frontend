@@ -83,11 +83,15 @@ const MyExpenses = () => {
 
 				setCategoryData(categories);
 
-				const sortedExpenses = response.data.expenses.sort(
-					(a, b) =>
-						new Date(b.createdDate).getTime() -
-						new Date(a.createdDate).getTime()
-				);
+				const sortedExpenses = response.data.expenses.sort((a, b) => {
+					const dateDiff =
+						new Date(b.date).getTime() - new Date(a.date).getTime();
+					if (dateDiff !== 0) return dateDiff;
+					return (
+						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+					);
+				});
+				
 				setExpenses(sortedExpenses);
 
 				setError(null);
