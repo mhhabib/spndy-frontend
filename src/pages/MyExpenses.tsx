@@ -91,7 +91,7 @@ const MyExpenses = () => {
 						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 					);
 				});
-				
+
 				setExpenses(sortedExpenses);
 
 				setError(null);
@@ -286,6 +286,7 @@ const MyExpenses = () => {
 					<ExpenseList
 						expenses={filteredExpenses}
 						isEditModeOn={isEditModeOn}
+						isSelfExpense={true}
 						onDeleteExpense={handleDeleteExpense}
 					/>
 				)}

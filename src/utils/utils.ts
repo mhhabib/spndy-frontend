@@ -22,26 +22,49 @@ export interface ApiResponse {
 			createdAt: string;
 			updatedAt: string;
 		};
+		User: {
+			id: number;
+			username: string;
+		};
 	}[];
 }
 
 export const colors = [
-	'#1F7D53',
-	'#BE5985',
-	'#FFA725',
-	'#AC1754',
+	'#03A791',
+	'#81E7AF',
+	'#077A7D',
+	'#ACC572',
+	'#A76545',
+	'#8E1616',
+	'#FF6363',
+	'#CF0F47',
+	'#6F826A',
+	'#3D90D7',
+	'#102E50',
+	'#BE3D2A',
+	'#328E6E',
+	'#67AE6E',
+	'#90C67C',
+	'#169976',
+	'#222222',
+	'#74512D',
+	'#123458',
+	'#604652',
+	'#735557',
+	'#735557',
+	'#522546',
+	'#210F37',
+	'#4F1C51',
+	'#27548A',
+	'#205781',
+	'#4D55CC',
 	'#2DAA9E',
-	'#00879E',
-	'#504B38',
-	'#626F47',
-	'#E07A5F',
-	'#A0C878',
-	'#DD88CF',
-	'#574964',
-	'#727D73',
-	'#7C444F',
-	'#500073',
-	'#131010',
+	'#344CB7',
+	'#16C47F',
+	'#3E7B27',
+	'#FFC145',
+	'#543A14',
+	'#0A5EB0',
 ];
 
 export const formatCurrency = (value: number, currency: string = 'BDT') => {

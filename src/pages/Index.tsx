@@ -67,6 +67,7 @@ const Index = () => {
 				<ExpenseList
 					expenses={filteredExpenses}
 					isEditModeOn={false}
+					isSelfExpense={false}
 					onDeleteExpense={handleDeleteExpense}
 				/>
 			</main>

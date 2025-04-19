@@ -12,7 +12,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/utils/utils';
+import { colors, formatCurrency } from '@/utils/utils';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,11 +33,16 @@ export interface Expense {
 		createdAt: string;
 		updatedAt: string;
 	};
+	User: {
+		id: number;
+		username: string;
+	};
 }
 
 interface ExpenseListProps {
 	expenses: Expense[];
 	isEditModeOn: boolean;
+	isSelfExpense: boolean;
 	onDeleteExpense: (id: number) => void;
 }
 
@@ -46,6 +51,7 @@ type SortDirection = 'asc' | 'desc' | null;
 const ExpenseList = ({
 	expenses: initialExpenses,
 	isEditModeOn,
+	isSelfExpense,
 	onDeleteExpense,
 }: ExpenseListProps) => {
 	const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -150,6 +156,35 @@ const ExpenseList = ({
 		return <ArrowDown className="h-4 w-4 ml-1" />;
 	};
 
+	const getLuminance = (hex: string) => {
+		const rgb = hex
+			.replace('#', '')
+			.match(/.{2}/g)!
+			.map((x) => parseInt(x, 16) / 255);
+		const [r, g, b] = rgb.map((c) =>
+			c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+		);
+		return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+	};
+
+	const getTextColor = (bgColor: string) => {
+		return getLuminance(bgColor) > 0.5 ? '#222222' : '#FFFFFF';
+	};
+
+	const getCategoryColor = (category: string) => {
+		const hash = category
+			.split('')
+			.reduce((acc, char) => acc + char.charCodeAt(0), 0);
+		const bgColor = colors[hash % colors.length];
+		const textColor = getTextColor(bgColor);
+		return { bgColor, textColor };
+	};
+
+	const getUserColor = (user: string) => {
+		return user === 'Habib'
+			? { bg: 'bg-blue-100', text: 'text-blue-500' }
+			: { bg: 'bg-green-100', text: 'text-green-700' };
+	};
 	return (
 		<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:400ms]">
 			<CardHeader className="pb-2">
@@ -197,14 +232,42 @@ const ExpenseList = ({
 										<div>
 											<p className="font-medium">{expense.description}</p>
 											<p className="text-xs text-muted-foreground">
-												{formatDate(expense.date)}
+												{!isSelfExpense && (
+													<>
+														<span
+															className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+																getUserColor(
+																	expense.User.username.split(' ')[0]
+																).bg
+															} ${
+																getUserColor(
+																	expense.User.username.split(' ')[0]
+																).text
+															}`}
+														>
+															{expense.User.username.split(' ')[0]}
+														</span>{' '}
+														- {formatDate(expense.date)}
+													</>
+												)}
+												{isSelfExpense && <>{formatDate(expense.date)}</>}
 											</p>
 										</div>
 									</td>
 									<td className="px-4 py-3">
-										<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-											{expense.Category.name}
-										</span>
+										{(() => {
+											const { bgColor, textColor } = getCategoryColor(
+												expense.Category.name
+											);
+											return (
+												<span
+													className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+													style={{ backgroundColor: bgColor, color: textColor }}
+												>
+													{expense.Category.name}
+												</span>
+											);
+										})()}
 									</td>
 									<td className="px-4 py-3 text-right font-medium">
 										{formatCurrency(expense.amount)}
