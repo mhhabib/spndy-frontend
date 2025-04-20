@@ -11,6 +11,8 @@ import { Plus, User, BarChart, LogIn } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import habibAvatar from '@/avatar/habib.jpg';
+import kanjunAvatar from '@/avatar/kanjun.jpg';
 
 const Navbar = () => {
 	const { username, email, isAuthenticated, logout } = useAuth();
@@ -32,14 +34,17 @@ const Navbar = () => {
 		return location.pathname === path;
 	};
 
+	const getUserAvatar = (userName: string) => {
+		console.log('User name: ', userName);
+		return userName === 'Habib' ? habibAvatar : kanjunAvatar;
+	};
+
 	return (
 		<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40 w-full px-4 py-3 sm:px-6">
 			<div className="max-w-7xl mx-auto flex items-center justify-between">
 				<div>
 					<Link to="/" className="flex items-center space-x-2">
-						<span className="font-semibold text-xl tracking-tight">
-							Spndy
-						</span>
+						<span className="font-semibold text-xl tracking-tight">Spndy</span>
 					</Link>
 				</div>
 
@@ -81,12 +86,16 @@ const Navbar = () => {
 									<Button
 										variant="ghost"
 										className={cn(
-											'relative h-9 w-9 rounded-full',
+											'relative h-9 w-9 rounded-full flex items-center justify-center p-0',
 											(isActive('/my-expenses') || isActive('/settings')) &&
 												'bg-primary/20 text-primary hover:bg-primary/30'
 										)}
 									>
-										<User className="h-5 w-5" />
+										<img
+											className="w-6 h-6 rounded-full object-cover"
+											src={getUserAvatar(username)}
+											alt="profile picture"
+										/>
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent align="end" className="w-56 bg-popover">

@@ -17,6 +17,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE_URL } from '@/config/Config';
+import habibAvatar from '@/avatar/habib.jpg';
+import kanjunAvatar from '@/avatar/kanjun.jpg';
 
 export interface Expense {
 	id: number;
@@ -180,11 +182,10 @@ const ExpenseList = ({
 		return { bgColor, textColor };
 	};
 
-	const getUserColor = (user: string) => {
-		return user === 'Habib'
-			? { bg: 'bg-blue-100', text: 'text-blue-500' }
-			: { bg: 'bg-green-100', text: 'text-green-700' };
+	const getUserAvatar = (userName: string) => {
+		return userName === 'Habib' ? habibAvatar : kanjunAvatar;
 	};
+
 	return (
 		<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:400ms]">
 			<CardHeader className="pb-2">
@@ -230,28 +231,25 @@ const ExpenseList = ({
 									<td className="px-4 py-3 whitespace-nowrap">{index + 1}</td>
 									<td className="px-4 py-3">
 										<div>
-											<p className="font-medium">{expense.description}</p>
-											<p className="text-xs text-muted-foreground">
+											<div className="flex items-center gap-4">
 												{!isSelfExpense && (
-													<>
-														<span
-															className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-																getUserColor(
-																	expense.User.username.split(' ')[0]
-																).bg
-															} ${
-																getUserColor(
-																	expense.User.username.split(' ')[0]
-																).text
-															}`}
-														>
-															{expense.User.username.split(' ')[0]}
-														</span>{' '}
-														- {formatDate(expense.date)}
-													</>
+													<img
+														className="w-10 h-10 rounded-full"
+														src={getUserAvatar(
+															expense.User.username.split(' ')[0]
+														)}
+														alt={`${
+															expense.User.username.split(' ')[0]
+														} profile picture`}
+													/>
 												)}
-												{isSelfExpense && <>{formatDate(expense.date)}</>}
-											</p>
+												<div className="font-medium dark:text-white">
+													<div>{expense.description}</div>
+													<div className="text-sm text-gray-500 dark:text-gray-400">
+														{formatDate(expense.date)}
+													</div>
+												</div>
+											</div>
 										</div>
 									</td>
 									<td className="px-4 py-3">
