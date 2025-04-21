@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { DollarSign, AlertCircle } from 'lucide-react';
 
@@ -12,36 +12,55 @@ const NotFound = () => {
 			const timer = setTimeout(() => setCount(count - 1), 1000);
 			return () => clearTimeout(timer);
 		}
-		navigate('/');
+		// navigate('/');
 	}, [count]);
 
-  const currentYear = new Date().getFullYear();
+	const colors = [
+		'text-yellow-400',
+		'text-green-400',
+		'text-amber-300',
+		'text-orange-300',
+		'text-lime-400',
+		'text-emerald-300',
+		'text-teal-300',
+		'text-gray-400',
+	];
+
+	const fallingCoins = useMemo(() => {
+		return Array.from({ length: 75 }).map((_, i) => ({
+			id: i,
+			left: `${Math.random() * 100}%`,
+			delay: `${Math.random() * 5}s`,
+			duration: `${5 + Math.random() * 10}s`,
+			size: Math.random() * 20 + 10,
+			color: colors[Math.floor(Math.random() * colors.length)],
+		}));
+	}, []);
+
+	const currentYear = new Date().getFullYear();
 
 	return (
 		<div className="min-h-screen bg-gradient-to-br from-white-100 to-gray-100 flex items-center justify-center p-4">
 			<div className="max-w-lg w-full">
-
 				<div className="absolute inset-0 overflow-hidden pointer-events-none">
-					{Array.from({ length: 50 }).map((_, i) => (
-						<div
-							key={i}
-							className="absolute text-yellow-500 opacity-20"
-							style={{
-								left: `${Math.random() * 100}%`,
-								top: `-50px`,
-								animation: `fall ${5 + Math.random() * 10}s linear ${
-									Math.random() * 5
-								}s infinite`,
-							}}
-						>
-							<DollarSign size={Math.random() * 20 + 10} />
-						</div>
-					))}
+					<div className="absolute inset-0 overflow-hidden pointer-events-none">
+						{fallingCoins.map(({ id, left, delay, duration, size, color }) => (
+							<div
+								key={id}
+								className={`absolute opacity-20 ${color}`}
+								style={{
+									left,
+									top: `-50px`,
+									animation: `fall ${duration} linear ${delay} infinite`,
+								}}
+							>
+								<DollarSign size={size} />
+							</div>
+						))}
+					</div>
 				</div>
 
 				<div className="bg-white rounded-xl shadow-xl overflow-hidden relative">
-					
-
 					{/* Main content */}
 					<div className="p-6 md:p-10 text-center">
 						<div className="flex justify-center mb-6">
