@@ -12,7 +12,7 @@ const NotFound = () => {
 			const timer = setTimeout(() => setCount(count - 1), 1000);
 			return () => clearTimeout(timer);
 		}
-		// navigate('/');
+		navigate('/');
 	}, [count]);
 
 	const colors = [
