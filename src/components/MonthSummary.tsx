@@ -31,7 +31,9 @@ const MonthSummary = () => {
 		const fetchExpenseData = async () => {
 			try {
 				setIsLoading(true);
-				const response = await fetch(`${API_BASE_URL}/reports/monthly/${thisYear}/${thisMonth}`);
+				const response = await fetch(
+					`${API_BASE_URL}/reports/monthly/${thisYear}/${thisMonth}`
+				);
 				if (!response.ok) {
 					throw new Error(`API request failed with status ${response.status}`);
 				}
@@ -40,10 +42,10 @@ const MonthSummary = () => {
 				setMonthTotal(data.totalExpense);
 
 				const categoryData: CategoryData[] = data.categoricalExpenses.map(
-					(item) => ({
+					(item, index) => ({
 						name: item.categoryName,
 						value: item.total,
-						color: colors[Math.floor(Math.random() * colors.length)],
+						color: colors[index % colors.length],
 					})
 				);
 

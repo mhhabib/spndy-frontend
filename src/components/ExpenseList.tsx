@@ -63,6 +63,7 @@ const ExpenseList = ({
 	const { toast } = useToast();
 	const navigate = useNavigate();
 	const { token } = useAuth();
+	const categoryColorMap: Record<string, string> = {};
 
 	// Update expenses when props change
 	useEffect(() => {
@@ -131,9 +132,6 @@ const ExpenseList = ({
 
 		setSortDirection(newDirection);
 
-		// Create a new sorted array based on direction
-		const sortedExpenses = [...expenses];
-
 		if (newDirection === null) {
 			setExpenses(initialExpenses);
 		} else {
@@ -173,11 +171,11 @@ const ExpenseList = ({
 		return getLuminance(bgColor) > 0.5 ? '#222222' : '#FFFFFF';
 	};
 
-	const getCategoryColor = (category: string) => {
-		const hash = category
-			.split('')
-			.reduce((acc, char) => acc + char.charCodeAt(0), 0);
-		const bgColor = colors[hash % colors.length];
+	const getCategoryColor = (category: string, index: number) => {
+		if (!categoryColorMap[category]) {
+			categoryColorMap[category] = colors[index % colors.length];
+		}
+		const bgColor = categoryColorMap[category];
 		const textColor = getTextColor(bgColor);
 		return { bgColor, textColor };
 	};
@@ -255,7 +253,8 @@ const ExpenseList = ({
 									<td className="px-4 py-3">
 										{(() => {
 											const { bgColor, textColor } = getCategoryColor(
-												expense.Category.name
+												expense.Category.name,
+												expense.Category.id
 											);
 											return (
 												<span

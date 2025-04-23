@@ -41,10 +41,10 @@ const YearSummary = () => {
 				setYearTotal(data.totalExpense);
 
 				const categoryData: CategoryData[] = data.categoricalExpenses.map(
-					(item) => ({
+					(item, index) => ({
 						name: item.categoryName,
 						value: item.total,
-						color: colors[Math.floor(Math.random() * colors.length)],
+						color: colors[index % colors.length],
 					})
 				);
 
