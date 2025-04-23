@@ -63,10 +63,10 @@ const Summary = () => {
 				});
 				setTotalExpenses(response.data.totalExpense);
 				const categories: CategoryData[] =
-					response.data.categoricalExpenses.map((item) => ({
+					response.data.categoricalExpenses.map((item, index) => ({
 						name: item.categoryName,
 						value: item.total,
-						color: colors[Math.floor(Math.random() * colors.length)],
+						color: colors[index % colors.length],
 					}));
 
 				setCategoryData(categories);
@@ -79,7 +79,7 @@ const Summary = () => {
 						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 					);
 				});
-				
+
 				setExpenses(sortedExpenses);
 
 				setError(null);
