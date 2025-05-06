@@ -35,7 +35,6 @@ const Navbar = () => {
 	};
 
 	const getUserAvatar = (userName: string) => {
-		console.log('User name: ', userName);
 		return userName === 'Habib' ? habibAvatar : kanjunAvatar;
 	};
 

@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				},
 				body: JSON.stringify({ email, password }),
 			});
-			console.log('Response: ', response);
+			
 			if (response.ok) {
 				const data = await response.json();
 				localStorage.setItem('access_token', data.token);
@@ -93,6 +93,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		email: string,
 		password: string
 	): Promise<boolean> => {
+		console.log("Signup auth ", username, email, password)
+		// http://localhost:8008/api/auth/signup
 		try {
 			const response = await fetch(`${API_BASE_URL}/auth/signup`, {
 				method: 'POST',

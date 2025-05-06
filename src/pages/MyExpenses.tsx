@@ -23,6 +23,11 @@ import {
 	ResponsiveContainer,
 	Legend,
 	Tooltip,
+	BarChart,
+	Bar,
+	CartesianGrid,
+	XAxis,
+	YAxis,
 } from 'recharts';
 import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE_URL } from '@/config/Config';
@@ -137,7 +142,6 @@ const MyExpenses = () => {
 			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 					<h1 className="text-2xl font-bold">My Expenses</h1>
-
 					<Popover>
 						<PopoverTrigger asChild>
 							<Button
@@ -181,45 +185,51 @@ const MyExpenses = () => {
 							</div>
 						)}
 						{!error && (
-							<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-								<div className="md:col-span-3 h-[240px]">
+							<div className="grid grid-cols-1 md:grid-cols-7 gap-4 flex items-center justify-center mt-5 mb-5">
+								<div className="md:col-span-4 h-[340px]">
 									{loading ? (
 										<div className="flex items-center justify-center h-full">
 											<p className="text-muted-foreground">Loading...</p>
 										</div>
 									) : categoryData.length > 0 ? (
 										<ResponsiveContainer width="100%" height="100%">
-											<PieChart>
-												<Pie
+												<BarChart
 													data={categoryData}
-													cx="50%"
-													cy="50%"
-													innerRadius={60}
-													outerRadius={80}
-													paddingAngle={2}
-													dataKey="value"
+													margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
 												>
-													{categoryData.map((entry, index) => (
-														<Cell key={`cell-${index}`} fill={entry.color} />
-													))}
-												</Pie>
-												<Tooltip
-													formatter={(value: number) => formatCurrency(value)}
-													contentStyle={{
-														borderRadius: '8px',
-														backgroundColor: 'rgba(255, 255, 255, 0.9)',
-														boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-														border: 'none',
-													}}
-												/>
-												<Legend
-													layout="vertical"
-													verticalAlign="middle"
-													align="right"
-													wrapperStyle={{ fontSize: '12px' }}
-												/>
-											</PieChart>
-										</ResponsiveContainer>
+													<CartesianGrid strokeDasharray="3 3" />
+													<XAxis
+														dataKey="name"
+														tick={{ fontSize: 10 }}
+														interval={0}
+														angle={-45}
+														textAnchor="end"
+														height={50}
+													/>
+													<YAxis
+														tick={{ fontSize: 10 }}
+														tickFormatter={(value) => {
+															if (value >= 1000) return `৳${(value / 1000).toFixed(0)}k`;
+															return `৳ ${value}`;
+														}}
+													/>
+													<Tooltip
+														formatter={(value) => formatCurrency(Number(value))}
+														contentStyle={{
+															borderRadius: '8px',
+															backgroundColor: 'rgba(244, 223, 193, 0.9)',
+															boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+															border: 'none',
+														}}
+													/>
+													<Legend wrapperStyle={{ fontSize: '12px' }} />
+													<Bar dataKey="value" name="Amount" radius={[2, 2, 0, 0]}>
+														{categoryData.map((entry, index) => (
+															<Cell key={`cell-${index}`} fill={entry.color} />
+														))}
+													</Bar>
+												</BarChart>
+											</ResponsiveContainer>
 									) : (
 										<div className="flex items-center justify-center h-full">
 											<p className="text-muted-foreground">

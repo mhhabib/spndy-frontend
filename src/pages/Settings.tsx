@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import {
 	Card,
 	CardContent,
@@ -7,7 +5,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import Footer from '@/components/Footer';
@@ -16,10 +13,14 @@ import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
 
 const Settings = () => {
-	const navigate = useNavigate();
 	const [showEditControls, setShowEditControls] = useState(() => {
 		const savedEditMode = localStorage.getItem('editMode');
 		return savedEditMode ? savedEditMode === 'true' : false;
+	});
+
+	const [showAnnualSummary, setShowAnnualSummary] = useState(() => {
+		const savedAnnualSummary = localStorage.getItem('annualSummary');
+		return savedAnnualSummary ? savedAnnualSummary === 'true' : false;
 	});
 
 	useEffect(() => {
@@ -27,11 +28,21 @@ const Settings = () => {
 		if (savedEditMode !== null) {
 			setShowEditControls(savedEditMode === 'true');
 		}
-	}, [showEditControls]);
+
+		const savedAnnualSummary = localStorage.getItem('annualSummary');
+		if (savedAnnualSummary !== null) {
+			setShowAnnualSummary(savedAnnualSummary === 'true');
+		}
+	}, [showEditControls, showAnnualSummary]);
 
 	const handleToggleEditControls = (value: boolean) => {
 		localStorage.setItem('editMode', value.toString());
 		setShowEditControls(value);
+	};
+
+	const handleToggleSummaryControls = (value: boolean) => {
+		localStorage.setItem('annualSummary', value.toString());
+		setShowAnnualSummary(value);
 	};
 
 	return (
@@ -50,14 +61,29 @@ const Settings = () => {
 					<CardContent className="space-y-6">
 						<div className="flex items-center justify-between">
 							<div className="space-y-0.5">
-								<Label htmlFor="notifications">Edit Mode</Label>
+								<Label htmlFor="notifications">Content Management</Label>
 								<p className="text-sm text-muted-foreground">
-									Switch edit mode to manipulate your content
+									Enable this mode to modify or delete entries within your
+									expense records
 								</p>
 							</div>
 							<Switch
 								checked={showEditControls}
 								onCheckedChange={handleToggleEditControls}
+								className="data-[state=checked]:bg-primary"
+							/>
+						</div>
+						<div className="flex items-center justify-between">
+							<div className="space-y-0.5">
+								<Label htmlFor="notifications">Display Annual Summary</Label>
+								<p className="text-sm text-muted-foreground">
+									Toggle to show or hide a consolidated view of yearly expense
+									data.
+								</p>
+							</div>
+							<Switch
+								checked={showAnnualSummary}
+								onCheckedChange={handleToggleSummaryControls}
 								className="data-[state=checked]:bg-primary"
 							/>
 						</div>

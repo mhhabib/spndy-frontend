@@ -24,6 +24,7 @@ import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import { API_BASE_URL } from '@/config/Config';
+import { Loader2 } from 'lucide-react';
 
 const AddExpense = () => {
 	const navigate = useNavigate();
@@ -31,6 +32,7 @@ const AddExpense = () => {
 	const { toast } = useToast();
 	const { token, isAuthenticated } = useAuth();
 	const [categories, setCategories] = useState([]);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
 	// Check if we're in edit mode based on the location state
 	const isEditing = location.state?.isEditing || false;
@@ -90,6 +92,8 @@ const AddExpense = () => {
 			return;
 		}
 
+		setIsSubmitting(true);
+
 		try {
 			const selectedCategory = categories.find(
 				(cat) => cat.name === formData.category
@@ -102,9 +106,11 @@ const AddExpense = () => {
 				categoryId: selectedCategory.id,
 				date: formData.date || new Date().toISOString(),
 			};
-
 			if (isEditing) {
-				await axios.put(
+				console.log('EDIT DATA ', expenseData.categoryId);
+				console.log('Selected category ', selectedCategory, formData.category);
+
+				const response = await axios.put(
 					`${API_BASE_URL}/expenses/${expenseToEdit.id}`,
 					expenseData,
 					{
@@ -141,6 +147,7 @@ const AddExpense = () => {
 				} expense. Please try again.`,
 				variant: 'destructive',
 			});
+			setIsSubmitting(false);
 		}
 	};
 
@@ -167,6 +174,7 @@ const AddExpense = () => {
 									value={formData.description}
 									onChange={handleChange}
 									placeholder="What did you spend on?"
+									disabled={isSubmitting}
 								/>
 							</div>
 							<div className="space-y-2">
@@ -174,6 +182,7 @@ const AddExpense = () => {
 								<Select
 									value={formData.category}
 									onValueChange={handleCategoryChange}
+									disabled={isSubmitting}
 								>
 									<SelectTrigger id="category">
 										<SelectValue placeholder="Select category" />
@@ -200,6 +209,7 @@ const AddExpense = () => {
 									placeholder="0.00"
 									min="0"
 									step="0.01"
+									disabled={isSubmitting}
 								/>
 							</div>
 							<div className="space-y-2">
@@ -211,6 +221,7 @@ const AddExpense = () => {
 									value={formData.date}
 									onChange={handleChange}
 									className="bg-white/70 backdrop-blur-sm"
+									disabled={isSubmitting}
 								/>
 							</div>
 						</CardContent>
@@ -219,11 +230,19 @@ const AddExpense = () => {
 								type="button"
 								variant="outline"
 								onClick={() => navigate('/')}
+								disabled={isSubmitting}
 							>
 								Cancel
 							</Button>
-							<Button type="submit">
-								{isEditing ? 'Update Expense' : 'Add Expense'}
+							<Button type="submit" disabled={isSubmitting}>
+								{isSubmitting ? (
+									<>
+										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+										{isEditing ? 'Updating...' : 'Adding...'}
+									</>
+								) : (
+									<>{isEditing ? 'Update Expense' : 'Add Expense'}</>
+								)}
 							</Button>
 						</CardFooter>
 					</form>

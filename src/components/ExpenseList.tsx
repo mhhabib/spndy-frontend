@@ -221,7 +221,7 @@ const ExpenseList = ({
 							</tr>
 						</thead>
 						<tbody>
-							{expenses.map((expense, index) => (
+							{expenses?.map((expense, index) => (
 								<tr
 									key={expense.id}
 									className="expense-item border-b border-border/40 bg-white/30 backdrop-blur-sm last:border-0"

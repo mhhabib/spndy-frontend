@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import YearSummary from '@/components/YearSummary';
 import MonthSummary from '@/components/MonthSummary';
@@ -54,12 +54,17 @@ const Index = () => {
 		expense.description.toLowerCase().includes(searchQuery.toLowerCase())
 	);
 
+	const shouldShowAnnualSummary = useMemo(() => {
+		const savedAnnualSummary = localStorage.getItem('annualSummary');
+		return savedAnnualSummary === 'true';
+	}, []);
+
 	return (
 		<div className="min-h-screen flex flex-col">
 			<Navbar />
 
 			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-				<YearSummary />
+				{shouldShowAnnualSummary && <YearSummary />}
 				<MonthSummary />
 
 				<ExpenseSearch onSearch={handleSearch} />
