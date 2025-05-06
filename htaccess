@@ -1,0 +1,31 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # Don't rewrite API routes
+  RewriteCond %{REQUEST_URI} !^/api
+  # Don't rewrite static files or directories
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  # Rewrite all other requests to index.html (for React router)
+  RewriteRule ^ index.html [QSA,L]
+</IfModule>
+# Add CORS headers
+<IfModule mod_headers.c>
+  # Always set these headers for CORS
+  Header always set Access-Control-Allow-Origin "http://localhost:8080"
+  Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+  Header always set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  Header always set Access-Control-Allow-Credentials "true"
+  
+  # Handle preflight OPTIONS requests
+  RewriteEngine On
+  RewriteCond %{REQUEST_METHOD} OPTIONS
+  RewriteRule ^(.*)$ $1 [R=200,L]
+</IfModule>
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/spndyxyz/spndy-api"
+PassengerBaseURI "/"
+PassengerNodejs "/home/spndyxyz/nodevenv/spndy-api/20/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
