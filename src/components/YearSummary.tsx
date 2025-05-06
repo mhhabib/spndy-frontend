@@ -130,7 +130,6 @@ const YearSummary = () => {
 											border: 'none',
 										}}
 									/>
-									<Legend wrapperStyle={{ fontSize: '12px' }} />
 									<Bar dataKey="value" name="Amount" radius={[2, 2, 0, 0]}>
 										{yearData.map((entry, index) => (
 											<Cell key={`cell-${index}`} fill={entry.color} />

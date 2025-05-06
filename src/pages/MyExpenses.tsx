@@ -193,43 +193,47 @@ const MyExpenses = () => {
 										</div>
 									) : categoryData.length > 0 ? (
 										<ResponsiveContainer width="100%" height="100%">
-												<BarChart
-													data={categoryData}
-													margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+											<BarChart
+												data={categoryData}
+												margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+											>
+												<CartesianGrid strokeDasharray="3 3" />
+												<XAxis
+													dataKey="name"
+													tick={{ fontSize: 10 }}
+													interval={0}
+													angle={-45}
+													textAnchor="end"
+													height={50}
+												/>
+												<YAxis
+													tick={{ fontSize: 10 }}
+													tickFormatter={(value) => {
+														if (value >= 1000)
+															return `৳${(value / 1000).toFixed(0)}k`;
+														return `৳ ${value}`;
+													}}
+												/>
+												<Tooltip
+													formatter={(value) => formatCurrency(Number(value))}
+													contentStyle={{
+														borderRadius: '8px',
+														backgroundColor: 'rgba(244, 223, 193, 0.9)',
+														boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+														border: 'none',
+													}}
+												/>
+												<Bar
+													dataKey="value"
+													name="Amount"
+													radius={[2, 2, 0, 0]}
 												>
-													<CartesianGrid strokeDasharray="3 3" />
-													<XAxis
-														dataKey="name"
-														tick={{ fontSize: 10 }}
-														interval={0}
-														angle={-45}
-														textAnchor="end"
-														height={50}
-													/>
-													<YAxis
-														tick={{ fontSize: 10 }}
-														tickFormatter={(value) => {
-															if (value >= 1000) return `৳${(value / 1000).toFixed(0)}k`;
-															return `৳ ${value}`;
-														}}
-													/>
-													<Tooltip
-														formatter={(value) => formatCurrency(Number(value))}
-														contentStyle={{
-															borderRadius: '8px',
-															backgroundColor: 'rgba(244, 223, 193, 0.9)',
-															boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-															border: 'none',
-														}}
-													/>
-													<Legend wrapperStyle={{ fontSize: '12px' }} />
-													<Bar dataKey="value" name="Amount" radius={[2, 2, 0, 0]}>
-														{categoryData.map((entry, index) => (
-															<Cell key={`cell-${index}`} fill={entry.color} />
-														))}
-													</Bar>
-												</BarChart>
-											</ResponsiveContainer>
+													{categoryData.map((entry, index) => (
+														<Cell key={`cell-${index}`} fill={entry.color} />
+													))}
+												</Bar>
+											</BarChart>
+										</ResponsiveContainer>
 									) : (
 										<div className="flex items-center justify-center h-full">
 											<p className="text-muted-foreground">

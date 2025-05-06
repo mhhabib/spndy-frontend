@@ -12,6 +12,7 @@ import {
 	Bar,
 	XAxis,
 	YAxis,
+	LabelList,
 } from 'recharts';
 import { ApiResponse, colors, formatCurrency } from '@/utils/utils';
 import { API_BASE_URL } from '@/config/Config';
@@ -138,11 +139,16 @@ const MonthSummary = () => {
 											border: 'none',
 										}}
 									/>
-									<Legend wrapperStyle={{ fontSize: '12px' }} />
 									<Bar dataKey="value" name="Amount" radius={[2, 2, 0, 0]}>
 										{monthData.map((entry, index) => (
 											<Cell key={`cell-${index}`} fill={entry.color} />
 										))}
+										<LabelList
+											dataKey="value"
+											position="top"
+											style={{ fontSize: 10, fill: '#333' }} // Customize text appearance
+											formatter={(value) => `৳ ${value}`} // Optional: format label
+										/>
 									</Bar>
 								</BarChart>
 							</ResponsiveContainer>
