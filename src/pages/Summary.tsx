@@ -16,21 +16,9 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { colors, formatCurrency } from '@/utils/utils';
-import {
-	PieChart,
-	Pie,
-	Cell,
-	ResponsiveContainer,
-	Legend,
-	Tooltip,
-	Bar,
-	CartesianGrid,
-	XAxis,
-	YAxis,
-	BarChart,
-} from 'recharts';
 import { API_BASE_URL } from '@/config/Config';
-import { useAuth } from '@/contexts/AuthContext';
+import ExpensePieChart from '@/utils/ExpensePieChart';
+import CategoryContainer from '@/utils/CategoryContainer';
 
 interface CategoryData {
 	name: string;
@@ -152,10 +140,18 @@ const Summary = () => {
 				<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:100ms]">
 					<CardHeader className="pb-2">
 						<CardTitle className="text-lg font-medium flex justify-between items-center">
-							<span>Expenses for Selected Period</span>
-							<span className="text-primary">
-								{loading ? 'Loading...' : formatCurrency(totalExpenses || 0)}
+							<span className="text-gray-800">
+								Selected Period Expenses
 							</span>
+							{loading ? (
+								<span className="text-gray-400 font-bold">Loading...</span>
+							) : (
+								<span className="text-l px-2 py-1 bg-black text-cyan-400 border-l-4 border-r-4 border-cyan-400">
+									<span className="font-mono tracking-wider">
+										{formatCurrency(totalExpenses || 0)}
+									</span>
+								</span>
+							)}
 						</CardTitle>
 					</CardHeader>
 					<CardContent>
@@ -166,50 +162,13 @@ const Summary = () => {
 						)}
 						{!error && (
 							<div className="grid grid-cols-1 md:grid-cols-7 gap-4 flex items-center justify-center  mt-5 mb-5">
-								<div className="md:col-span-4 h-[340px]">
+								<div className="md:col-span-3 h-[340px] mb-10 sm:mb-0">
 									{loading ? (
 										<div className="flex items-center justify-center h-full">
 											<p className="text-muted-foreground">Loading...</p>
 										</div>
 									) : categoryData.length > 0 ? (
-										<ResponsiveContainer width="100%" height="100%">
-											<BarChart
-												data={categoryData}
-												margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-											>
-												<CartesianGrid strokeDasharray="3 3" />
-												<XAxis
-													dataKey="name"
-													tick={{ fontSize: 10 }}
-													interval={0}
-													angle={-45}
-													textAnchor="end"
-													height={50}
-												/>
-												<YAxis
-													tick={{ fontSize: 10 }}
-													tickFormatter={(value) => {
-														if (value >= 1000) return `৳${(value / 1000).toFixed(0)}k`;
-														return `৳ ${value}`;
-													}}
-												/>
-												<Tooltip
-													formatter={(value) => formatCurrency(Number(value))}
-													contentStyle={{
-														borderRadius: '8px',
-														backgroundColor: 'rgba(244, 223, 193, 0.9)',
-														boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-														border: 'none',
-													}}
-												/>
-												<Legend wrapperStyle={{ fontSize: '12px' }} />
-												<Bar dataKey="value" name="Amount" radius={[2, 2, 0, 0]}>
-													{categoryData.map((entry, index) => (
-														<Cell key={`cell-${index}`} fill={entry.color} />
-													))}
-												</Bar>
-											</BarChart>
-										</ResponsiveContainer>
+										<ExpensePieChart data={categoryData} />
 									) : (
 										<div className="flex items-center justify-center h-full">
 											<p className="text-muted-foreground">
@@ -218,38 +177,11 @@ const Summary = () => {
 										</div>
 									)}
 								</div>
-								<div className="md:col-span-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
-									{categoryData.map((category) => (
-										<div
-											key={category.name}
-											className="p-3 rounded-lg bg-white/50 backdrop-blur-sm border border-border/50 shadow-sm hover-scale"
-										>
-											<div className="flex items-center space-x-2 mb-1">
-												<div
-													className="w-3 h-3 rounded-full"
-													style={{ backgroundColor: category.color }}
-												></div>
-												<span className="text-xs font-medium">
-													{category.name}
-												</span>
-											</div>
-											<p className="text-l font-semibold">
-												{formatCurrency(category.value)}
-											</p>
-											<p className="text-xs text-muted-foreground">
-												{((category.value / totalExpenses) * 100).toFixed(2)}%
-												of total
-											</p>
-										</div>
-									))}
-									{!loading && categoryData.length === 0 && (
-										<div className="p-3 col-span-3 rounded-lg bg-white/50 backdrop-blur-sm border border-border/50 shadow-sm">
-											<p className="text-center text-muted-foreground">
-												No expense data available for the selected period
-											</p>
-										</div>
-									)}
-								</div>
+								<CategoryContainer
+									data={categoryData}
+									expenseTotal={totalExpenses}
+									isLoading={loading}
+								/>
 							</div>
 						)}
 					</CardContent>
