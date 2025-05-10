@@ -33,6 +33,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
+import ExpenseExport from '@/components/ExpenseExport';
 
 interface CategoryData {
 	name: string;
@@ -137,28 +138,36 @@ const MyExpenses = () => {
 			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
 					<h1 className="text-2xl font-bold">My Expenses</h1>
-					<Popover>
-						<PopoverTrigger asChild>
-							<Button
-								variant="outline"
-								className="w-full sm:w-auto justify-start gap-2"
-							>
-								<Calendar className="h-4 w-4" />
-								{formatDateRange()}
-							</Button>
-						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="end">
-							<CalendarComponent
-								initialFocus
-								mode="range"
-								defaultMonth={dateRange?.from}
-								selected={dateRange}
-								onSelect={setDateRange}
-								numberOfMonths={2}
-								className="bg-white rounded-md border border-border/50"
-							/>
-						</PopoverContent>
-					</Popover>
+					<div className="flex items-center gap-2">
+						<Popover>
+							<PopoverTrigger asChild>
+								<Button
+									variant="outline"
+									className="w-full sm:w-auto justify-start gap-2"
+								>
+									<Calendar className="h-4 w-4" />
+									{formatDateRange()}
+								</Button>
+							</PopoverTrigger>
+							<PopoverContent className="w-auto p-0" align="end">
+								<CalendarComponent
+									initialFocus
+									mode="range"
+									defaultMonth={dateRange?.from}
+									selected={dateRange}
+									onSelect={setDateRange}
+									numberOfMonths={2}
+									className="bg-white rounded-md border border-border/50"
+								/>
+							</PopoverContent>
+						</Popover>
+						<ExpenseExport
+							expenses={filteredExpenses}
+							categoryData={categoryData}
+							totalExpenses={totalExpenses}
+							dateRange={dateRange}
+						/>
+					</div>
 				</div>
 
 				<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:100ms]">

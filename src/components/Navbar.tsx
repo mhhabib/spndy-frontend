@@ -7,7 +7,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, User, BarChart, LogIn } from 'lucide-react';
+import { Plus, BarChart, LogIn, Wallet } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -39,11 +39,16 @@ const Navbar = () => {
 	};
 
 	return (
-		<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border/40 w-full px-4 py-3 sm:px-6">
+		<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-xs w-full px-4 py-3 sm:px-6">
 			<div className="max-w-7xl mx-auto flex items-center justify-between">
 				<div>
 					<Link to="/" className="flex items-center space-x-2">
-						<span className="font-semibold text-xl tracking-tight">Spndy</span>
+						<div className="flex items-center gap-2">
+							<Wallet size={20} className="text-primary" />
+							<span className="text-2xl font-bold tracking-wide text-primary">
+								SPNDY
+							</span>
+						</div>
 					</Link>
 				</div>
 
