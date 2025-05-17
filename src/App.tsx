@@ -14,6 +14,9 @@ import MyExpenses from './pages/MyExpenses';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import NotFound from './pages/NotFound';
+import Tour from './pages/Tour';
+import AddTour from './components/tour/AddTour';
+import AddTourDay from './components/tour/AddTourDay';
 
 const queryClient = new QueryClient();
 
@@ -30,7 +33,10 @@ const App = () => (
 							<Route path="/summary" element={<Summary />} />
 							<Route path="/add-expense" element={<AddExpense />} />
 							<Route path="/settings" element={<Settings />} />
+							<Route path="/tours" element={<Tour />} />
 							<Route path="/my-expenses" element={<MyExpenses />} />
+							<Route path="/add-tour" element={<AddTour />} />
+							<Route path="/add-tour-day" element={<AddTourDay />} />
 						</Route>
 						<Route element={<GuestRoute />}>
 							<Route path="/login" element={<Login />} />

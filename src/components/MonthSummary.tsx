@@ -45,6 +45,7 @@ const MonthSummary = () => {
 					throw new Error(`API request failed with status ${response.status}`);
 				}
 				const data: ApiResponse = await response.json();
+				console.log('Month data: ', data);
 
 				setMonthTotal(data.totalExpense);
 

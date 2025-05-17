@@ -11,39 +11,16 @@ import Footer from '@/components/Footer';
 import CategoryManagement from '@/components/CategoryManagement';
 import { useEffect, useState } from 'react';
 import Navbar from '@/components/Navbar';
+import { usePersistentToggle } from '@/utils/usePersistentToggle';
+import { SettingToggle } from '@/components/SettingToggle';
 
 const Settings = () => {
-	const [showEditControls, setShowEditControls] = useState(() => {
-		const savedEditMode = localStorage.getItem('editMode');
-		return savedEditMode ? savedEditMode === 'true' : false;
-	});
-
-	const [showAnnualSummary, setShowAnnualSummary] = useState(() => {
-		const savedAnnualSummary = localStorage.getItem('annualSummary');
-		return savedAnnualSummary ? savedAnnualSummary === 'true' : false;
-	});
-
-	useEffect(() => {
-		const savedEditMode = localStorage.getItem('editMode');
-		if (savedEditMode !== null) {
-			setShowEditControls(savedEditMode === 'true');
-		}
-
-		const savedAnnualSummary = localStorage.getItem('annualSummary');
-		if (savedAnnualSummary !== null) {
-			setShowAnnualSummary(savedAnnualSummary === 'true');
-		}
-	}, [showEditControls, showAnnualSummary]);
-
-	const handleToggleEditControls = (value: boolean) => {
-		localStorage.setItem('editMode', value.toString());
-		setShowEditControls(value);
-	};
-
-	const handleToggleSummaryControls = (value: boolean) => {
-		localStorage.setItem('annualSummary', value.toString());
-		setShowAnnualSummary(value);
-	};
+	const [showEditControls, setShowEditControls] =
+		usePersistentToggle('editMode');
+	const [showAnnualSummary, setShowAnnualSummary] =
+		usePersistentToggle('annualSummary');
+	const [showAddTourButton, setShowAddTourButton] =
+		usePersistentToggle('addnewtour');
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -59,34 +36,24 @@ const Settings = () => {
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="space-y-6">
-						<div className="flex items-center justify-between">
-							<div className="space-y-0.5">
-								<Label htmlFor="notifications">Content Management</Label>
-								<p className="text-sm text-muted-foreground">
-									Enable this mode to modify or delete entries within your
-									expense records
-								</p>
-							</div>
-							<Switch
-								checked={showEditControls}
-								onCheckedChange={handleToggleEditControls}
-								className="data-[state=checked]:bg-primary"
-							/>
-						</div>
-						<div className="flex items-center justify-between">
-							<div className="space-y-0.5">
-								<Label htmlFor="notifications">Display Annual Summary</Label>
-								<p className="text-sm text-muted-foreground">
-									Toggle to show or hide a consolidated view of yearly expense
-									data.
-								</p>
-							</div>
-							<Switch
-								checked={showAnnualSummary}
-								onCheckedChange={handleToggleSummaryControls}
-								className="data-[state=checked]:bg-primary"
-							/>
-						</div>
+						<SettingToggle
+							title="Content Management"
+							description="Enable this mode to modify or delete entries within your expense records"
+							checked={showEditControls}
+							onChange={setShowEditControls}
+						/>
+						<SettingToggle
+							title="Display Annual Summary"
+							description="Toggle to show or hide a consolidated view of yearly expense data."
+							checked={showAnnualSummary}
+							onChange={setShowAnnualSummary}
+						/>
+						<SettingToggle
+							title="Display Add New Tour Button"
+							description="Toggle to show or hide the new tour creation button."
+							checked={showAddTourButton}
+							onChange={setShowAddTourButton}
+						/>
 					</CardContent>
 				</Card>
 			</main>

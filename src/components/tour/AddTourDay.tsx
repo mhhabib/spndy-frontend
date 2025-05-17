@@ -1,16 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
 import {
 	Card,
 	CardContent,
@@ -19,6 +12,13 @@ import {
 	CardTitle,
 	CardDescription,
 } from '@/components/ui/card';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
@@ -26,64 +26,58 @@ import Navbar from '@/components/Navbar';
 import { API_BASE_URL } from '@/config/Config';
 import { Loader2 } from 'lucide-react';
 
-const AddExpense = () => {
+const AddTourDay = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { toast } = useToast();
-	const { token, isAuthenticated } = useAuth();
-	const [categories, setCategories] = useState([]);
+	const { token } = useAuth();
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const types = ['expense', 'experience', 'shopping'];
+	const today = new Date();
 
-	// Check if we're in edit mode based on the location state
-	const isEditing = location.state?.isEditing || false;
-	const expenseToEdit = location.state?.expense || null;
-	const categoryName = location.state?.categoryName || '';
+	const isEditing = useMemo(
+		() => location.state?.isEditing || false,
+		[location.state]
+	);
+	const tourDayToEdit = useMemo(
+		() => location.state?.day || null,
+		[location.state]
+	);
 
-	// Initialize form with either existing expense data or defaults
-	const [formData, setFormData] = useState({
-		description: isEditing ? expenseToEdit.description : '',
-		category: isEditing ? categoryName : '',
-		amount: isEditing ? expenseToEdit.amount.toString() : '',
-		date: isEditing
-			? new Date(expenseToEdit.date).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0],
-	});
-
-	const fetchCategories = useCallback(async () => {
-		try {
-			const { data } = await axios.get(`${API_BASE_URL}/categories`);
-			const sortedCategories = data
-				.map((category) => ({ id: category.id, name: category.name }))
-				.sort((a, b) => a.name.localeCompare(b.name));
-			setCategories(sortedCategories);
-		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Failed to fetch categories',
-				variant: 'destructive',
-			});
-		}
-	}, [toast]);
+	const activeTourId = useMemo(
+		() => location.state?.tourId || tourDayToEdit.tourId || null,
+		[location.state, tourDayToEdit]
+	);
 
 	useEffect(() => {
-		if (isAuthenticated) {
-			fetchCategories();
-		}
-	}, [isAuthenticated, fetchCategories]);
+		if (!activeTourId) navigate('/tours');
+	}, [activeTourId]);
+
+	const [formData, setFormData] = useState({
+		description: isEditing ? tourDayToEdit.description : '',
+		location: isEditing ? tourDayToEdit.location : '',
+		amount: isEditing ? tourDayToEdit.amount : 0,
+		tourId: isEditing ? tourDayToEdit.tourId : activeTourId,
+		type: isEditing ? tourDayToEdit.type : '',
+		date: isEditing
+			? new Date(tourDayToEdit.date).toISOString().split('T')[0]
+			: today.toISOString().split('T')[0],
+	});
 
 	const handleChange = (e) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleCategoryChange = (value) => {
-		setFormData((prev) => ({ ...prev, category: value }));
-	};
-
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 
-		if (!formData.description || !formData.category || !formData.amount) {
+		if (
+			!formData.description ||
+			!formData.tourId ||
+			!formData.type ||
+			(formData.type !== 'experience' && !formData.amount)
+		) {
 			toast({
 				title: 'Error',
 				description: 'Please fill all required fields',
@@ -95,22 +89,18 @@ const AddExpense = () => {
 		setIsSubmitting(true);
 
 		try {
-			const selectedCategory = categories.find(
-				(cat) => cat.name === formData.category
-			);
-			if (!selectedCategory) throw new Error('Selected category not found');
-
-			const expenseData = {
+			const tourDayData = {
 				description: formData.description,
-				amount: parseFloat(formData.amount),
-				categoryId: selectedCategory.id,
-				date: formData.date || new Date().toISOString(),
+				location: formData.location,
+				date: formData.date,
+				amount: formData.amount,
+				type: formData.type,
+				tourId: formData.tourId,
 			};
 			if (isEditing) {
-	
 				await axios.put(
-					`${API_BASE_URL}/expenses/${expenseToEdit.id}`,
-					expenseData,
+					`${API_BASE_URL}/entries/${tourDayToEdit.id}`,
+					tourDayData,
 					{
 						headers: {
 							'Content-Type': 'application/json',
@@ -120,22 +110,24 @@ const AddExpense = () => {
 				);
 				toast({
 					title: 'Success',
-					description: 'Expense updated successfully',
+					description: 'Tour day details updated successfully',
 				});
-				navigate('/my-expenses');
+				navigate('/tours');
 			} else {
-				await axios.post(`${API_BASE_URL}/expenses`, expenseData, {
+				await axios.post(`${API_BASE_URL}/entries`, tourDayData, {
 					headers: {
-						'Content-Type': 'application/json',
 						Authorization: `Bearer ${token}`,
 					},
 				});
-				toast({ title: 'Success', description: 'Expense added successfully' });
-				navigate('/');
+				toast({
+					title: 'Success',
+					description: 'Tour day details added successfully',
+				});
+				navigate('/tours');
 			}
 		} catch (error) {
 			console.error(
-				`Error ${isEditing ? 'updating' : 'adding'} expense:`,
+				`Error ${isEditing ? 'updating' : 'adding'} details:`,
 				error
 			);
 			toast({
@@ -145,8 +137,12 @@ const AddExpense = () => {
 				} expense. Please try again.`,
 				variant: 'destructive',
 			});
+		} finally {
 			setIsSubmitting(false);
 		}
+	};
+	const handleTypeChange = (value) => {
+		setFormData((prev) => ({ ...prev, type: value }));
 	};
 
 	return (
@@ -155,11 +151,15 @@ const AddExpense = () => {
 			<main className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6">
 				<Card className="card-glass w-full animate-fade-in">
 					<CardHeader>
-						<CardTitle>{isEditing ? 'Edit Expense' : 'Add Expense'}</CardTitle>
+						<CardTitle>
+							{isEditing
+								? 'Update the details for this specific tour day'
+								: 'Fill in the details for this specific tour day'}
+						</CardTitle>
 						<CardDescription>
 							{isEditing
-								? 'Update the details of your expense'
-								: 'Enter the details of your new expense'}
+								? 'Update the details of your tour day information'
+								: 'Enter the details of your tour day information'}
 						</CardDescription>
 					</CardHeader>
 					<form onSubmit={handleSubmit}>
@@ -171,42 +171,56 @@ const AddExpense = () => {
 									name="description"
 									value={formData.description}
 									onChange={handleChange}
-									placeholder="What did you spend on?"
+									placeholder="Dine at coral station"
 									disabled={isSubmitting}
 								/>
 							</div>
 							<div className="space-y-2">
-								<Label htmlFor="category">Category</Label>
+								<Label htmlFor="type">Type</Label>
 								<Select
-									value={formData.category}
-									onValueChange={handleCategoryChange}
+									value={formData.type}
+									onValueChange={handleTypeChange}
 									disabled={isSubmitting}
 								>
-									<SelectTrigger id="category">
-										<SelectValue placeholder="Select category" />
+									<SelectTrigger id="type">
+										<SelectValue placeholder="Select Type" />
 									</SelectTrigger>
 									<SelectContent
 										style={{ maxHeight: '160px', overflowY: 'auto' }}
 									>
-										{categories.map(({ id, name }) => (
-											<SelectItem key={id} value={name}>
-												{name}
+										{types.map((name) => (
+											<SelectItem key={name} value={name}>
+												{name.replace(/^./, (char) => char.toUpperCase())}
 											</SelectItem>
 										))}
 									</SelectContent>
 								</Select>
 							</div>
+							{formData.type !== 'experience' && (
+								<div className="space-y-2">
+									<Label htmlFor="amount">Amount</Label>
+									<Input
+										id="amount"
+										name="amount"
+										type="number"
+										value={formData.amount}
+										onChange={handleChange}
+										placeholder="0.00"
+										min="0"
+										step="0.01"
+										disabled={isSubmitting}
+									/>
+								</div>
+							)}
 							<div className="space-y-2">
-								<Label htmlFor="amount">Amount</Label>
+								<Label htmlFor="location">Location(Optional)</Label>
 								<Input
-									id="amount"
-									name="amount"
-									type="number"
-									value={formData.amount}
+									id="location"
+									name="location"
+									type="location"
+									value={formData.location}
 									onChange={handleChange}
-									placeholder="0.00"
-									min="0"
-									step="0.01"
+									placeholder="Dhaka, Bangladesh"
 									disabled={isSubmitting}
 								/>
 							</div>
@@ -227,7 +241,7 @@ const AddExpense = () => {
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => navigate('/')}
+								onClick={() => navigate('/tours')}
 								disabled={isSubmitting}
 							>
 								Cancel
@@ -239,7 +253,7 @@ const AddExpense = () => {
 										{isEditing ? 'Updating...' : 'Adding...'}
 									</>
 								) : (
-									<>{isEditing ? 'Update Expense' : 'Add Expense'}</>
+									<>{isEditing ? 'Update details' : 'Add details'}</>
 								)}
 							</Button>
 						</CardFooter>
@@ -251,4 +265,4 @@ const AddExpense = () => {
 	);
 };
 
-export default AddExpense;
+export default AddTourDay;

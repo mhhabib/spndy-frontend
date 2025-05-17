@@ -7,7 +7,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Plus, BarChart, LogIn, Wallet } from 'lucide-react';
+import { BarChart, LogIn, Plane, Plus, Wallet } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -55,21 +55,6 @@ const Navbar = () => {
 				<div className="flex items-center space-x-1 sm:space-x-4">
 					{isAuthenticated ? (
 						<>
-							<Link to="/summary">
-								<Button
-									size="icon"
-									variant="ghost"
-									className={cn(
-										'nav-icon relative',
-										isActive('/summary') &&
-											'bg-primary/20 text-primary hover:bg-primary/30'
-									)}
-								>
-									<BarChart className="h-5 w-5" />
-									<span className="sr-only">Summary</span>
-								</Button>
-							</Link>
-
 							<Link to="/add-expense">
 								<Button
 									size="icon"
@@ -82,6 +67,36 @@ const Navbar = () => {
 								>
 									<Plus className="h-5 w-5" />
 									<span className="sr-only">Add Expense</span>
+								</Button>
+							</Link>
+
+							<Link to="/tours">
+								<Button
+									size="icon"
+									variant="ghost"
+									className={cn(
+										'nav-icon relative',
+										isActive('/tours') &&
+											'bg-primary/20 text-primary hover:bg-primary/30'
+									)}
+								>
+									<Plane className="h-5 w-5" />
+									<span className="sr-only">Tours</span>
+								</Button>
+							</Link>
+
+							<Link to="/summary">
+								<Button
+									size="icon"
+									variant="ghost"
+									className={cn(
+										'nav-icon relative',
+										isActive('/summary') &&
+											'bg-primary/20 text-primary hover:bg-primary/30'
+									)}
+								>
+									<BarChart className="h-5 w-5" />
+									<span className="sr-only">Summary</span>
 								</Button>
 							</Link>
 

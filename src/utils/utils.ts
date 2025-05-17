@@ -1,5 +1,7 @@
 // utils.ts
 
+import { UUID } from 'crypto';
+
 export interface ApiResponse {
 	totalExpense: number;
 	categoricalExpenses: {
@@ -69,7 +71,7 @@ export const colors = [
 
 export const formatCurrency = (value: number, currency: string = 'BDT') => {
 	if (currency === 'BDT') {
-		return `৳ ${value.toLocaleString('en-BD')}`;
+		return `৳ ${value?.toLocaleString('en-BD')}`;
 	}
 
 	return new Intl.NumberFormat('en-US', {
@@ -79,3 +81,24 @@ export const formatCurrency = (value: number, currency: string = 'BDT') => {
 		maximumFractionDigits: 0,
 	}).format(value);
 };
+
+export interface TourDay {
+	id: UUID;
+	description: string;
+	type: 'experience' | 'expense' | 'shopping';
+	date: Date;
+	location: string;
+	amount: number | null;
+	createdAt: Date;
+	updatedAt?: Date;
+}
+
+export interface Tour {
+	id: UUID;
+	name: string;
+	startDate: Date;
+	endDate: Date;
+	totalCost: number;
+	location: string;
+	entries: TourDay[];
+}
