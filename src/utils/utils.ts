@@ -91,6 +91,7 @@ export interface TourDay {
 	amount: number | null;
 	createdAt: Date;
 	updatedAt?: Date;
+	userId: string;
 }
 
 export interface Tour {

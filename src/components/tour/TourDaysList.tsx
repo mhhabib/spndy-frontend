@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
 	Calendar,
 	Edit,
@@ -19,6 +19,7 @@ interface TourDaysListProps {
 	onEditDay: (day: TourDay) => void;
 	onDeleteDay: (tourId: UUID, entryId: UUID) => void;
 	onToggleDropdown: (id: UUID) => void;
+	currentUserId: string;
 }
 
 const TourDaysList: React.FC<TourDaysListProps> = ({
@@ -29,38 +30,58 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 	onEditDay,
 	onDeleteDay,
 	onToggleDropdown,
+	currentUserId,
 }) => {
-	const sortedTourDays = Array.isArray(tourDays)
-		? [...tourDays].sort((a, b) => {
-				const dateA = new Date(a.date).getTime();
-				const dateB = new Date(b.date).getTime();
+	const [tab, setTab] = useState<'all' | 'my'>('all');
 
-				if (dateA !== dateB) return dateB - dateA;
-
-				const createdA = new Date(a.createdAt).getTime();
-				const createdB = new Date(b.createdAt).getTime();
-
-				return createdB - createdA;
-		  })
+	const filteredTourDays = Array.isArray(tourDays)
+		? tourDays.filter((day) => tab === 'all' || day.userId === currentUserId)
 		: [];
+
+	const sortedTourDays = [...filteredTourDays].sort((a, b) => {
+		const dateA = new Date(a.date).getTime();
+		const dateB = new Date(b.date).getTime();
+		if (dateA !== dateB) return dateB - dateA;
+		return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+	});
 
 	return (
 		<div className="md:col-span-2 bg-white rounded-xl shadow-sm p-4">
-			{/* Header */}
 			<div className="flex justify-between items-center mb-6">
-				<h2 className="text-xl font-bold text-gray-700">Tour Days</h2>
-				<button
-					className="text-gray-700 hover:text-green-600 text-sm px-3 py-1.5 rounded-md flex items-center"
-					onClick={() => onAddTourDay(activeTourId)}
-				>
-					<PlusCircle size={14} className="mr-1.5" />
-					<span>Add tour days</span>
-				</button>
+				<h2 className="text-xl font-bold text-gray-700">Tour Activities</h2>
+				<div className="inline-flex rounded-md shadow-sm" role="group">
+					<button
+						onClick={() => setTab('all')}
+						className={`px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-l-md focus:z-10 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 ${
+							tab === 'all'
+								? 'bg-gray-600 text-white border-gray-800'
+								: 'bg-white text-gray-700 hover:bg-gray-50'
+						}`}
+					>
+						All
+					</button>
+					<button
+						onClick={() => setTab('my')}
+						className={`px-3 py-1.5 text-sm font-medium border border-gray-300 -ml-px focus:z-10 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 ${
+							tab === 'my'
+								? 'bg-gray-600 text-white border-gray-800'
+								: 'bg-white text-gray-700 hover:bg-gray-50'
+						}`}
+					>
+						My Entry
+					</button>
+					<button
+						onClick={() => onAddTourDay(activeTourId)}
+						className="text-gray-700 hover:text-white hover:bg-sky-500 text-sm px-3 py-1.5 border border-gray-300 rounded-r-md -ml-px flex items-center focus:z-10 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+					>
+						<PlusCircle size={14} className="mr-1.5" />
+						<span>Add Entry</span>
+					</button>
+				</div>
 			</div>
 
-			{/* Tour Day Items */}
 			<div className="space-y-4">
-				{sortedTourDays?.length === 0 ? (
+				{sortedTourDays.length === 0 ? (
 					<div className="flex flex-col items-center justify-center py-10 px-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
 						<Calendar size={36} className="text-blue-400 mb-3" />
 						<h3 className="text-lg font-semibold text-blue-700">
@@ -78,7 +99,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 						</button>
 					</div>
 				) : (
-					sortedTourDays?.map((day) => (
+					sortedTourDays.map((day) => (
 						<div
 							key={day.id}
 							className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100 relative"
@@ -131,52 +152,51 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 										</div>
 									</div>
 								</div>
-
-								{/* Dropdown */}
-								<div className="relative">
-									<button
-										id={`day-button-${day.id}`}
-										onClick={(e) => {
-											e.stopPropagation();
-											onToggleDropdown(
-												activeDayDropdown === day.id ? null : day.id
-											);
-										}}
-										className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
-									>
-										<MoreVertical size={18} />
-									</button>
-
-									{activeDayDropdown === day.id && (
-										<div
-											id={`day-dropdown-${day.id}`}
-											className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
+								{tab !== 'all' && (
+									<div className="relative">
+										<button
+											id={`day-button-${day.id}`}
+											onClick={(e) => {
+												e.stopPropagation();
+												onToggleDropdown(
+													activeDayDropdown === day.id ? null : day.id
+												);
+											}}
+											className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
 										>
-											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													onEditDay(day);
-													onToggleDropdown(null);
-												}}
-												className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+											<MoreVertical size={18} />
+										</button>
+										{activeDayDropdown === day.id && (
+											<div
+												id={`day-dropdown-${day.id}`}
+												className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
 											>
-												<Edit size={14} className="mr-2" />
-												Edit Day
-											</button>
-											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													onDeleteDay(activeTourId, day.id);
-													onToggleDropdown(null);
-												}}
-												className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-											>
-												<Trash2 size={14} className="mr-2" />
-												Delete Day
-											</button>
-										</div>
-									)}
-								</div>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														onEditDay(day);
+														onToggleDropdown(null);
+													}}
+													className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+												>
+													<Edit size={14} className="mr-2" />
+													Update Entry
+												</button>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														onDeleteDay(activeTourId, day.id);
+														onToggleDropdown(null);
+													}}
+													className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+												>
+													<Trash2 size={14} className="mr-2" />
+													Delete Entry
+												</button>
+											</div>
+										)}
+									</div>
+								)}
 							</div>
 						</div>
 					))

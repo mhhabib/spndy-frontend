@@ -11,12 +11,14 @@ import { API_BASE_URL } from '@/config/Config';
 interface DecodedToken {
 	email: string;
 	username: string;
+	id: string;
 }
 
 interface AuthContextType {
 	token: string | null;
 	username: string | null;
 	email: string | null;
+	userId: string | null;
 
 	isAuthenticated: boolean;
 	login: (email: string, password: string) => Promise<boolean>;
@@ -37,11 +39,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 	const [username, setUsername] = useState<string | null>(null);
 	const [email, setEmail] = useState<string | null>(null);
 	const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!token);
+	const [userId, setUserId] = useState<string | null>(null);
 
 	const updateTokenInfo = (newToken: string | null) => {
 		if (!newToken) {
 			setUsername(null);
 			setEmail(null);
+			setUserId(null);
 			setIsAuthenticated(false);
 			return;
 		}
@@ -50,10 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 			const decoded = jwtDecode<DecodedToken>(newToken);
 			setUsername(decoded.username);
 			setEmail(decoded.email);
+			setUserId(decoded.id);
 			setIsAuthenticated(true);
 		} catch {
 			setUsername(null);
 			setEmail(null);
+			setUserId(null);
 			setIsAuthenticated(false);
 		}
 	};
@@ -74,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 				},
 				body: JSON.stringify({ email, password }),
 			});
-			
+
 			if (response.ok) {
 				const data = await response.json();
 				localStorage.setItem('access_token', data.token);
@@ -93,8 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 		email: string,
 		password: string
 	): Promise<boolean> => {
-		console.log("Signup auth ", username, email, password)
-		// http://localhost:8008/api/auth/signup
 		try {
 			const response = await fetch(`${API_BASE_URL}/auth/signup`, {
 				method: 'POST',
@@ -122,7 +126,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 	return (
 		<AuthContext.Provider
-			value={{ token, username, email, isAuthenticated, login, signup, logout }}
+			value={{
+				token,
+				userId,
+				username,
+				email,
+				isAuthenticated,
+				login,
+				signup,
+				logout,
+			}}
 		>
 			{children}
 		</AuthContext.Provider>

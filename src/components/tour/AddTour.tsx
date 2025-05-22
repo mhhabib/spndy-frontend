@@ -121,7 +121,7 @@ const AddTour = () => {
 				<Card className="card-glass w-full animate-fade-in">
 					<CardHeader>
 						<CardTitle>
-							{isEditing ? 'Edit tour information' : 'Add tour information'}
+							{isEditing ? 'Update tour informations' : 'Add tour informations'}
 						</CardTitle>
 						<CardDescription>
 							{isEditing
@@ -200,7 +200,7 @@ const AddTour = () => {
 										{isEditing ? 'Updating...' : 'Adding...'}
 									</>
 								) : (
-									<>{isEditing ? 'Update Expense' : 'Add Expense'}</>
+									<>{isEditing ? 'Update Tour' : 'Add Tour'}</>
 								)}
 							</Button>
 						</CardFooter>

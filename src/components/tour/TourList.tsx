@@ -52,7 +52,7 @@ const TourList: React.FC<TourListProps> = ({
 						onClick={onAddTour}
 					>
 						<PlusCircle size={14} className="mr-1.5" />
-						<span>Add new tour</span>
+						<span>Add Tour</span>
 					</button>
 				)}
 			</div>
@@ -97,50 +97,52 @@ const TourList: React.FC<TourListProps> = ({
 								</div>
 
 								{/* Dropdown Menu */}
-								<div className="relative">
-									<button
-										id={`tour-button-${tour.id}`}
-										onClick={(e) => {
-											e.stopPropagation();
-											onToggleDropdown(
-												activeTourDropdown === tour.id ? null : tour.id
-											);
-										}}
-										className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
-									>
-										<MoreVertical size={18} />
-									</button>
-
-									{activeTourDropdown === tour.id && (
-										<div
-											id={`tour-dropdown-${tour.id}`}
-											className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
+								{shouldAddNewTourButtonShown && (
+									<div className="relative">
+										<button
+											id={`tour-button-${tour.id}`}
+											onClick={(e) => {
+												e.stopPropagation();
+												onToggleDropdown(
+													activeTourDropdown === tour.id ? null : tour.id
+												);
+											}}
+											className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
 										>
-											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													onEditTour(tour);
-													onToggleDropdown(null);
-												}}
-												className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+											<MoreVertical size={18} />
+										</button>
+
+										{activeTourDropdown === tour.id && (
+											<div
+												id={`tour-dropdown-${tour.id}`}
+												className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
 											>
-												<Edit size={14} className="mr-2" />
-												Edit Tour
-											</button>
-											<button
-												onClick={(e) => {
-													e.stopPropagation();
-													onDeleteTour(tour.id);
-													onToggleDropdown(null);
-												}}
-												className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
-											>
-												<Trash2 size={14} className="mr-2" />
-												Delete Tour
-											</button>
-										</div>
-									)}
-								</div>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														onEditTour(tour);
+														onToggleDropdown(null);
+													}}
+													className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+												>
+													<Edit size={14} className="mr-2" />
+													Update Tour
+												</button>
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														onDeleteTour(tour.id);
+														onToggleDropdown(null);
+													}}
+													className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+												>
+													<Trash2 size={14} className="mr-2" />
+													Delete Tour
+												</button>
+											</div>
+										)}
+									</div>
+								)}
 							</div>
 						</div>
 					);

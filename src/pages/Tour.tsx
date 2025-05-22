@@ -19,7 +19,7 @@ export default function TourPlanner() {
 	const [tours, setTours] = useState<Tour[]>([]);
 	const [activeTourId, setActiveTourId] = useState<UUID>(null);
 	const navigate = useNavigate();
-	const { token } = useAuth();
+	const { token, userId } = useAuth();
 	const { toast } = useToast();
 
 	const fetchTours = async () => {
@@ -180,56 +180,56 @@ export default function TourPlanner() {
 						onToggleShare={handleToggleShare}
 					/>
 				)}
+
 				{/* Main content area */}
 				<div className="max-w-6xl mx-auto mt-4 px-4">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
 						{/* Tour list column */}
-						<TourList
-							tours={tours}
-							activeTourId={activeTourId}
-							activeTourDropdown={activeTourDropdown}
-							onTourClick={handleTourClick}
-							onAddTour={() => navigate('/add-tour')}
-							// onEditTour={() => navigate('/add-tour')}
-							onEditTour={(tour) =>
-								navigate('/add-tour', {
-									state: {
-										isEditing: true,
-										tour, // the selected tour object
-									},
-								})
-							}
-							onDeleteTour={(id) => handleDeleteTour(id)}
-							onToggleDropdown={setActiveTourDropdown}
-						/>
+						<div className="md:col-span-1">
+							<TourList
+								tours={tours}
+								activeTourId={activeTourId}
+								activeTourDropdown={activeTourDropdown}
+								onTourClick={handleTourClick}
+								onAddTour={() => navigate('/add-tour')}
+								onEditTour={(tour) =>
+									navigate('/add-tour', {
+										state: {
+											isEditing: true,
+											tour,
+										},
+									})
+								}
+								onDeleteTour={(id) => handleDeleteTour(id)}
+								onToggleDropdown={setActiveTourDropdown}
+							/>
+						</div>
 
 						{/* Tour days column - spans 2 columns */}
-						<TourDaysList
-							tourDays={activeTour?.entries || []}
-							activeTourId={activeTourId}
-							activeDayDropdown={activeDayDropdown}
-							onAddTourDay={(tourId) =>
-								navigate('/add-tour-day', {
-									state: {
-										tourId: tourId,
-									},
-								})
-							}
-							onEditDay={(day) =>
-								navigate('/add-tour-day', {
-									state: {
-										day: day,
-										isEditing: true,
-									},
-								})
-							}
-							onDeleteDay={(tourId, entryId) =>
-								handleDeleteDayEntry(tourId, entryId)
-							}
-							onToggleDropdown={(id) =>
-								setActiveDayDropdown((prev) => (prev === id ? null : id))
-							}
-						/>
+						<div className="md:col-span-2">
+							<TourDaysList
+								tourDays={activeTour?.entries || []}
+								activeTourId={activeTourId}
+								activeDayDropdown={activeDayDropdown}
+								currentUserId={userId}
+								onAddTourDay={(tourId) =>
+									navigate('/add-tour-day', {
+										state: { tourId },
+									})
+								}
+								onEditDay={(day) =>
+									navigate('/add-tour-day', {
+										state: { day, isEditing: true },
+									})
+								}
+								onDeleteDay={(tourId, entryId) =>
+									handleDeleteDayEntry(tourId, entryId)
+								}
+								onToggleDropdown={(id) =>
+									setActiveDayDropdown((prev) => (prev === id ? null : id))
+								}
+							/>
+						</div>
 					</div>
 				</div>
 			</main>
