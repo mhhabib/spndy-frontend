@@ -36,6 +36,7 @@ const Summary = () => {
 	const [totalExpenses, setTotalExpenses] = useState(0);
 	const [expenses, setExpenses] = useState<Expense[]>([]);
 	const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+	const [selectedCategoryId, setSelectedCategoryId] = useState<number>(-1);
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -58,6 +59,7 @@ const Summary = () => {
 				setTotalExpenses(response.data.totalExpense);
 				const categories: CategoryData[] =
 					response.data.categoricalExpenses.map((item, index) => ({
+						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
@@ -88,9 +90,14 @@ const Summary = () => {
 		fetchExpenses();
 	}, [dateRange]);
 
-	const filteredExpenses = expenses.filter((expense) =>
-		expense.description.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const filteredExpenses = expenses.filter((expense) => {
+		const matchesSearch = expense.description
+			.toLowerCase()
+			.includes(searchQuery.toLowerCase());
+		const matchesCategory =
+			selectedCategoryId === -1 || expense.CategoryId === selectedCategoryId;
+		return matchesSearch && matchesCategory;
+	});
 
 	const handleDeleteExpense = (id: number) => {
 		setExpenses(expenses.filter((expense) => expense.id !== id));
@@ -104,6 +111,10 @@ const Summary = () => {
 		if (!dateRange?.from) return 'Select date range';
 		if (!dateRange.to) return `From ${format(dateRange.from, 'PPP')}`;
 		return `${format(dateRange.from, 'PPP')} - ${format(dateRange.to, 'PPP')}`;
+	};
+
+	const handleCategoryId = (id: number) => {
+		setSelectedCategoryId(id);
 	};
 
 	return (
@@ -167,6 +178,7 @@ const Summary = () => {
 								<ExpenseCategory
 									data={categoryData}
 									expenseTotal={totalExpenses}
+									onCategoryClick={(id: number) => handleCategoryId(id)}
 								/>
 							</div>
 						)}

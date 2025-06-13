@@ -50,6 +50,7 @@ const MyExpenses = () => {
 	const [totalExpenses, setTotalExpenses] = useState(0);
 	const [expenses, setExpenses] = useState<Expense[]>([]);
 	const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+	const [selectedCategoryId, setSelectedCategoryId] = useState<number>(-1);
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -73,10 +74,10 @@ const MyExpenses = () => {
 						params: {
 							fromDate,
 							toDate,
-							email: email, // Adding the email as a parameter
+							email: email,
 						},
 						headers: {
-							Authorization: `Bearer ${localStorage.getItem('access_token')}`, // Adding authorization header
+							Authorization: `Bearer ${localStorage.getItem('access_token')}`,
 						},
 					}
 				);
@@ -84,6 +85,7 @@ const MyExpenses = () => {
 				setTotalExpenses(response.data.totalExpense);
 				const categories: CategoryData[] =
 					response.data.categoricalExpenses.map((item, index) => ({
+						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
@@ -113,9 +115,14 @@ const MyExpenses = () => {
 		fetchExpenses();
 	}, [dateRange]);
 
-	const filteredExpenses = expenses.filter((expense) =>
-		expense.description.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const filteredExpenses = expenses.filter((expense) => {
+		const matchesSearch = expense.description
+			.toLowerCase()
+			.includes(searchQuery.toLowerCase());
+		const matchesCategory =
+			selectedCategoryId === -1 || expense.CategoryId === selectedCategoryId;
+		return matchesSearch && matchesCategory;
+	});
 
 	const handleDeleteExpense = (id: number) => {
 		setExpenses(expenses.filter((expense) => expense.id !== id));
@@ -129,6 +136,10 @@ const MyExpenses = () => {
 		if (!dateRange?.from) return 'Select date range';
 		if (!dateRange.to) return `From ${format(dateRange.from, 'PPP')}`;
 		return `${format(dateRange.from, 'PPP')} - ${format(dateRange.to, 'PPP')}`;
+	};
+
+	const handleCategoryId = (id: number) => {
+		setSelectedCategoryId(id);
 	};
 
 	return (
@@ -191,6 +202,7 @@ const MyExpenses = () => {
 								<ExpenseCategory
 									data={categoryData}
 									expenseTotal={totalExpenses}
+									onCategoryClick={(id: number) => handleCategoryId(id)}
 								/>
 							</div>
 						)}

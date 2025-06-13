@@ -11,6 +11,7 @@ import { API_BASE_URL } from '@/config/Config';
 const Index = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [expenses, setExpenses] = useState<Expense[]>([]);
+	const [selectedCategoryId, setSelectedCategoryId] = useState<number>(-1);
 	const nowDate = new Date();
 	const thisYear = nowDate.getFullYear();
 	const thisMonth = nowDate.getMonth() + 1;
@@ -50,14 +51,23 @@ const Index = () => {
 		setExpenses(expenses.filter((expense) => expense.id !== id));
 	};
 
-	const filteredExpenses = expenses.filter((expense) =>
-		expense.description.toLowerCase().includes(searchQuery.toLowerCase())
-	);
+	const filteredExpenses = expenses.filter((expense) => {
+		const matchesSearch = expense.description
+			.toLowerCase()
+			.includes(searchQuery.toLowerCase());
+		const matchesCategory =
+			selectedCategoryId === -1 || expense.CategoryId === selectedCategoryId;
+		return matchesSearch && matchesCategory;
+	});
 
 	const shouldShowAnnualSummary = useMemo(() => {
 		const savedAnnualSummary = localStorage.getItem('annualSummary');
 		return savedAnnualSummary === 'true';
 	}, []);
+
+	const handleCategoryId = (id: number) => {
+		setSelectedCategoryId(id);
+	};
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -65,7 +75,7 @@ const Index = () => {
 
 			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
 				{shouldShowAnnualSummary && <YearSummary />}
-				<MonthSummary />
+				<MonthSummary onCategoryClick={(id: number) => handleCategoryId(id)} />
 
 				<ExpenseSearch onSearch={handleSearch} />
 

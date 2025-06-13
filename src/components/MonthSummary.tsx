@@ -1,30 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import {
-	PieChart,
-	Pie,
-	Cell,
-	ResponsiveContainer,
-	Legend,
-	Tooltip,
-	BarChart,
-	CartesianGrid,
-	Bar,
-	XAxis,
-	YAxis,
-} from 'recharts';
 import { ApiResponse, colors, formatCurrency } from '@/utils/utils';
 import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
 
 interface CategoryData {
+	id: number;
 	name: string;
 	value: number;
 	color: string;
 }
 
-const MonthSummary = () => {
+const MonthSummary = ({ onCategoryClick }) => {
 	const [monthTotal, setMonthTotal] = useState(0);
 	const [monthData, setMonthData] = useState<CategoryData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -45,12 +33,11 @@ const MonthSummary = () => {
 					throw new Error(`API request failed with status ${response.status}`);
 				}
 				const data: ApiResponse = await response.json();
-				console.log('Month data: ', data);
 
 				setMonthTotal(data.totalExpense);
-
 				const categoryData: CategoryData[] = data.categoricalExpenses.map(
 					(item, index) => ({
+						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
@@ -109,7 +96,11 @@ const MonthSummary = () => {
 			<CardContent>
 				<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
 					<ExpenseChart expenseData={monthData} />
-					<ExpenseCategory data={monthData} expenseTotal={monthTotal} />
+					<ExpenseCategory
+						data={monthData}
+						expenseTotal={monthTotal}
+						onCategoryClick={(id: number) => onCategoryClick(id)}
+					/>
 				</div>
 			</CardContent>
 		</Card>
