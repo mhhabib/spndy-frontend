@@ -71,7 +71,8 @@ export const colors = [
 
 export const formatCurrency = (value: number, currency: string = 'BDT') => {
 	if (currency === 'BDT') {
-		return `৳ ${value?.toLocaleString('en-BD')}`;
+		// return `৳ ${value?.toLocaleString('en-BD')}`;
+		return `${value?.toLocaleString('en-BD')}`;
 	}
 
 	return new Intl.NumberFormat('en-US', {
@@ -102,4 +103,5 @@ export interface Tour {
 	totalCost: number;
 	location: string;
 	entries: TourDay[];
+	isPublic: Boolean;
 }

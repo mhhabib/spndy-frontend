@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import tourBg from '@/avatar/tour-bg.png';
 import TourHeader from '@/components/tour/TourHeader';
 import TourList from '@/components/tour/TourList';
 import TourDaysList from '@/components/tour/TourDaysList';
@@ -15,7 +14,6 @@ import { UUID } from 'crypto';
 export default function TourPlanner() {
 	const [activeTourDropdown, setActiveTourDropdown] = useState<UUID>(null);
 	const [activeDayDropdown, setActiveDayDropdown] = useState<UUID>(null);
-	const [isShared, setIsShared] = useState<boolean>(false);
 	const [tours, setTours] = useState<Tour[]>([]);
 	const [activeTourId, setActiveTourId] = useState<UUID>(null);
 	const navigate = useNavigate();
@@ -58,6 +56,30 @@ export default function TourPlanner() {
 	const activeTour = useMemo(() => {
 		return tours.find((tour) => tour.id === activeTourId) || tours[0];
 	}, [tours, activeTourId]);
+
+	const totalShoppingCost = useMemo(() => {
+		const tour = tours.find((t) => t.id === activeTourId);
+		if (!tour) return 0;
+
+		return tour.entries
+			.filter(
+				(entry) => entry.type === 'shopping' && !isNaN(Number(entry.amount))
+			)
+			.reduce((sum, entry) => sum + Number(entry.amount), 0);
+	}, [tours, activeTourId]);
+
+	const myTotalTourCost = useMemo(() => {
+		const tour = tours.find((t) => t.id === activeTourId);
+		if (!tour || !userId) return 0;
+
+		return tour.entries
+			.filter(
+				(entry) => entry.userId === userId && !isNaN(Number(entry.amount))
+			)
+			.reduce((sum, entry) => sum + Number(entry.amount), 0);
+	}, [tours, userId, activeTourId]);
+
+	console.log('My cost: ', myTotalTourCost);
 
 	// Handle click outside to close dropdowns
 	useEffect(() => {
@@ -103,11 +125,9 @@ export default function TourPlanner() {
 		setActiveTourId(tourId);
 		setActiveTourDropdown(null);
 	};
+
 	const handleToggleShare = () => {
-		setIsShared((prev) => {
-			return !prev;
-		});
-		console.log('Tour shared to public ', isShared);
+		console.log('Current tourId ', activeTourId);
 	};
 
 	const handleDeleteTour = async (id) => {
@@ -165,10 +185,7 @@ export default function TourPlanner() {
 	return (
 		<div className="min-h-screen flex flex-col">
 			<Navbar />
-			<main
-				className="flex-grow max-w-full w-full mx-auto px-4 sm:px-6 py-6 bg-cover bg-center"
-				style={{ backgroundImage: `url(${tourBg})` }}
-			>
+			<main className="flex-grow max-w-full w-full mx-auto px-4 sm:px-6 py-6 texture-dots bg-gray-300">
 				{activeTour && (
 					<TourHeader
 						name={activeTour.name}
@@ -176,7 +193,8 @@ export default function TourPlanner() {
 						endDate={activeTour.endDate}
 						location={activeTour.location}
 						totalCost={activeTour.totalCost}
-						isShared={isShared}
+						totalShoppingCost={totalShoppingCost}
+						isShared={activeTour.isPublic}
 						onToggleShare={handleToggleShare}
 					/>
 				)}
@@ -228,6 +246,7 @@ export default function TourPlanner() {
 								onToggleDropdown={(id) =>
 									setActiveDayDropdown((prev) => (prev === id ? null : id))
 								}
+								myTotalTourCost={myTotalTourCost}
 							/>
 						</div>
 					</div>

@@ -15,7 +15,7 @@ import habibAvatar from '@/avatar/habib.jpg';
 import kanjunAvatar from '@/avatar/kanjun.jpg';
 
 const Navbar = () => {
-	const { username, email, isAuthenticated, logout } = useAuth();
+	const { username, email, isAuthenticated, logout, userId } = useAuth();
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { toast } = useToast();
