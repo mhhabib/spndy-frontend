@@ -94,7 +94,12 @@ export interface TourDay {
 	updatedAt?: Date;
 	userId: string;
 }
-
+export interface ShareLink {
+	id: UUID;
+	isPublic: Boolean;
+	shareLink: string | null;
+	tourId: UUID;
+}
 export interface Tour {
 	id: UUID;
 	name: string;
@@ -104,4 +109,5 @@ export interface Tour {
 	location: string;
 	entries: TourDay[];
 	isPublic: Boolean;
+	shareLink: ShareLink;
 }

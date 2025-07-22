@@ -9,7 +9,7 @@ import {
 	Wallet,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { formatCurrency } from '@/utils/utils';
+import { formatCurrency, ShareLink } from '@/utils/utils';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,7 +20,7 @@ interface TourHeaderProps {
 	location: string;
 	totalCost: number;
 	totalShoppingCost: number;
-	isShared: Boolean;
+	shareLink?: ShareLink;
 	onToggleShare: () => void;
 }
 
@@ -31,15 +31,26 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 	location,
 	totalCost,
 	totalShoppingCost,
-	isShared = false,
+	shareLink,
 	onToggleShare = () => {},
 }) => {
 	const { toast } = useToast();
 	const numDays = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
-	const shareLink = 'https://spndy.xyz/tours/78eaub3';
+	console.log('Share link in header ', shareLink);
+	const safeShareLink = shareLink ?? {
+		isPublic: false,
+		shareLink: null,
+		id: '',
+		tourId: '',
+	};
 
+	const shareActualLink = `https://spndy.xyz/tours/${
+		safeShareLink.shareLink || ''
+	}`;
+
+	console.log('ShareLink: ', safeShareLink, shareActualLink);
 	const handleCopy = () => {
-		navigator.clipboard.writeText(shareLink);
+		navigator.clipboard.writeText(shareActualLink);
 		toast({
 			title: 'Success',
 			description: 'The link is copied to your clipboard',
@@ -59,25 +70,24 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 				</span>
 			</div>
 
-			<div className="flex items-center justify-center ">
-				<div className="flex items-center space-x-5">
+			<div className="flex justify-center">
+				<div className="grid grid-cols-2 sm:flex sm:flex-wrap sm:gap-x-5 gap-3">
 					<div className="flex items-center">
 						<Calendar className="w-4 h-4 text-green-500 mr-1" />
-						<span className="text-base font-medium text-sm">
-							{numDays} days
-						</span>
+						<span className="text-sm font-medium">{numDays} days</span>
 					</div>
 
 					<div className="flex items-center">
 						<Wallet className="w-4 h-4 text-orange-700 mr-1" />
-						<span className="text-base font-medium text-sm">
+						<span className="text-sm font-medium">
 							{formatCurrency(totalCost - totalShoppingCost)}
 						</span>
 					</div>
+
 					{totalShoppingCost > 0 && (
 						<div className="flex items-center">
 							<ShoppingBag className="w-4 h-4 text-purple-500 mr-1" />
-							<span className="text-base font-medium text-sm">
+							<span className="text-sm font-medium">
 								{formatCurrency(totalShoppingCost)}
 							</span>
 						</div>
@@ -85,7 +95,7 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 
 					<div className="flex items-center">
 						<BadgeDollarSign className="w-4 h-4 text-red-500 mr-1" />
-						<span className="text-base font-medium text-sm">
+						<span className="text-sm font-medium">
 							{formatCurrency(totalCost)}
 						</span>
 					</div>
@@ -98,17 +108,19 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 					onClick={onToggleShare}
 					className="flex items-center gap-2"
 				>
-					{isShared ? (
+					{safeShareLink.isPublic ? (
 						<ShieldOff className="w-4 h-4" />
 					) : (
 						<Share2 className="w-4 h-4" />
 					)}
-					{isShared ? 'Unshare' : 'Share'}
+					{safeShareLink.isPublic ? 'Unshare' : 'Share'}
 				</Button>
 
-				{isShared && (
+				{safeShareLink.isPublic && (
 					<div className="flex items-center gap-2 bg-gray-100 px-4 py-1 rounded-lg">
-						<span className="text-sm font-mono text-blue-700">{shareLink}</span>
+						<span className="text-sm font-mono text-blue-700">
+							{shareActualLink}
+						</span>
 						<Button variant="ghost" size="sm" onClick={handleCopy}>
 							<Copy className="w-4 h-4" />
 						</Button>

@@ -14,6 +14,7 @@ import { UUID } from 'crypto';
 export default function TourPlanner() {
 	const [activeTourDropdown, setActiveTourDropdown] = useState<UUID>(null);
 	const [activeDayDropdown, setActiveDayDropdown] = useState<UUID>(null);
+	const [isTourPublic, setIsTourPublic] = useState<Boolean>(false);
 	const [tours, setTours] = useState<Tour[]>([]);
 	const [activeTourId, setActiveTourId] = useState<UUID>(null);
 	const navigate = useNavigate();
@@ -55,7 +56,7 @@ export default function TourPlanner() {
 
 	const activeTour = useMemo(() => {
 		return tours.find((tour) => tour.id === activeTourId) || tours[0];
-	}, [tours, activeTourId]);
+	}, [tours, activeTourId, isTourPublic]);
 
 	const totalShoppingCost = useMemo(() => {
 		const tour = tours.find((t) => t.id === activeTourId);
@@ -66,7 +67,7 @@ export default function TourPlanner() {
 				(entry) => entry.type === 'shopping' && !isNaN(Number(entry.amount))
 			)
 			.reduce((sum, entry) => sum + Number(entry.amount), 0);
-	}, [tours, activeTourId]);
+	}, [tours, activeTourId, isTourPublic]);
 
 	const myTotalTourCost = useMemo(() => {
 		const tour = tours.find((t) => t.id === activeTourId);
@@ -77,9 +78,7 @@ export default function TourPlanner() {
 				(entry) => entry.userId === userId && !isNaN(Number(entry.amount))
 			)
 			.reduce((sum, entry) => sum + Number(entry.amount), 0);
-	}, [tours, userId, activeTourId]);
-
-	console.log('My cost: ', myTotalTourCost);
+	}, [tours, userId, activeTourId, isTourPublic]);
 
 	// Handle click outside to close dropdowns
 	useEffect(() => {
@@ -126,8 +125,45 @@ export default function TourPlanner() {
 		setActiveTourDropdown(null);
 	};
 
-	const handleToggleShare = () => {
-		console.log('Current tourId ', activeTourId);
+	const handleToggleShare = async () => {
+		if (!activeTour) return;
+
+		const currentPublicStatus = activeTour.shareLink?.isPublic ?? isTourPublic;
+		const newIsPublic = !currentPublicStatus;
+
+		setIsTourPublic(newIsPublic);
+
+		try {
+			const response = await fetch(`${API_BASE_URL}/tours/share`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					isPublic: newIsPublic,
+					tourId: activeTour.id,
+				}),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				console.error('Error response:', errorData);
+				setIsTourPublic(currentPublicStatus);
+				return;
+			}
+
+			const updatedLink = await response.json();
+
+			// ✅ Manually update tour's shareLink in your tours state
+			setTours((prevTours) =>
+				prevTours.map((tour) =>
+					tour.id === activeTour.id ? { ...tour, shareLink: updatedLink } : tour
+				)
+			);
+		} catch (err) {
+			console.error('Error toggling share link:', err);
+			setIsTourPublic(currentPublicStatus);
+		}
 	};
 
 	const handleDeleteTour = async (id) => {
@@ -194,7 +230,7 @@ export default function TourPlanner() {
 						location={activeTour.location}
 						totalCost={activeTour.totalCost}
 						totalShoppingCost={totalShoppingCost}
-						isShared={activeTour.isPublic}
+						shareLink={activeTour.shareLink}
 						onToggleShare={handleToggleShare}
 					/>
 				)}
