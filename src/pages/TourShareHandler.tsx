@@ -75,6 +75,7 @@ const TourShareHandler = () => {
 		if (!tourData?.entries?.length) return {};
 
 		return tourData.entries.reduce((acc, entry) => {
+			if (entry.type === 'shopping') return acc;
 			if (isNaN(Number(entry.amount))) return acc;
 
 			const type = entry.type;
@@ -82,7 +83,7 @@ const TourShareHandler = () => {
 
 			acc[type] += Number(entry.amount);
 			return acc;
-		}, {});
+		}, {} as Record<string, number>);
 	}, [tourData]);
 
 	if (!isValidHexFormat) {
@@ -135,7 +136,7 @@ const TourShareHandler = () => {
 								<Calendar className="w-4 h-4 text-green-500 mr-1" />
 								<span className="text-sm font-medium">{numDays} days</span>
 							</div>
-							
+
 							{Object.entries(totalAmountByType)
 								.filter(([_, amount]) => (amount as number) > 0)
 								.map(([type, amount]) => (
