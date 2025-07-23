@@ -122,11 +122,19 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 											className="w-10 h-10 rounded-full flex items-center justify-center mr-4"
 											style={{
 												backgroundColor:
-													day.type === 'expense'
-														? '#FEE2E2'
+													day.type === 'food'
+														? '#FEF3C7' // amber-100
+														: day.type === 'expense'
+														? '#FEE2E2' // red-100
+														: day.type === 'experience'
+														? '#DBEAFE' // blue-100
+														: day.type === 'hotel'
+														? '#E0E7FF' // indigo-100
 														: day.type === 'shopping'
-														? '#EDE9FE'
-														: '#DBEAFE',
+														? '#FCE7F3' // pink-100
+														: day.type === 'transport'
+														? '#D1FAE5' // emerald-100
+														: '#F3F4F6', // gray-100 (default)
 											}}
 										>
 											{getTypeIcon(day.type)}
@@ -157,7 +165,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 													</span>
 												)}
 												{day.amount !== null && day.type !== 'experience' && (
-													<span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 flex items-center">
+													<span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 flex items-center">
 														{formatCurrency(day.amount)}
 													</span>
 												)}

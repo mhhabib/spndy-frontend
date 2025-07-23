@@ -86,7 +86,7 @@ export const formatCurrency = (value: number, currency: string = 'BDT') => {
 export interface TourDay {
 	id: UUID;
 	description: string;
-	type: 'experience' | 'expense' | 'shopping';
+	type: 'food' | 'experience' | 'expense' | 'hotel' | 'shopping' | 'transport';
 	date: Date;
 	location: string;
 	amount: number | null;

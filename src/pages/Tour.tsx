@@ -154,7 +154,6 @@ export default function TourPlanner() {
 
 			const updatedLink = await response.json();
 
-			// ✅ Manually update tour's shareLink in your tours state
 			setTours((prevTours) =>
 				prevTours.map((tour) =>
 					tour.id === activeTour.id ? { ...tour, shareLink: updatedLink } : tour
@@ -224,11 +223,7 @@ export default function TourPlanner() {
 			<main className="flex-grow max-w-full w-full mx-auto px-4 sm:px-6 py-6 texture-dots bg-gray-300">
 				{activeTour && (
 					<TourHeader
-						name={activeTour.name}
-						startDate={activeTour.startDate}
-						endDate={activeTour.endDate}
-						location={activeTour.location}
-						totalCost={activeTour.totalCost}
+						tourData={activeTour}
 						totalShoppingCost={totalShoppingCost}
 						shareLink={activeTour.shareLink}
 						onToggleShare={handleToggleShare}

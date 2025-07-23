@@ -17,6 +17,7 @@ import NotFound from './pages/NotFound';
 import Tour from './pages/Tour';
 import AddTour from './components/tour/AddTour';
 import AddTourDay from './components/tour/AddTourDay';
+import TourShareHandler from './pages/TourShareHandler';
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,9 @@ const App = () => (
 							<Route path="/login" element={<Login />} />
 							<Route path="/ticket" element={<Signup />} />
 						</Route>
+						{/* Public dynamic route for shared links */}
+						<Route path="/:hexId" element={<TourShareHandler />} />
+						<Route path="/404" element={<NotFound />} />
 						<Route path="*" element={<NotFound />} />
 					</Routes>
 				</BrowserRouter>

@@ -1,42 +1,37 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
 	BadgeDollarSign,
 	Calendar,
 	Copy,
+	CreditCard,
 	Share2,
 	ShieldOff,
 	ShoppingBag,
 	Wallet,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
-import { formatCurrency, ShareLink } from '@/utils/utils';
+import { formatCurrency, ShareLink, Tour } from '@/utils/utils';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { typeIcons } from '@/utils/TourUtils';
 
 interface TourHeaderProps {
-	name: string;
-	startDate: Date;
-	endDate: Date;
-	location: string;
-	totalCost: number;
+	tourData: Tour;
 	totalShoppingCost: number;
 	shareLink?: ShareLink;
 	onToggleShare: () => void;
 }
 
 const TourHeader: React.FC<TourHeaderProps> = ({
-	name,
-	startDate,
-	endDate,
-	location,
-	totalCost,
+	tourData,
 	totalShoppingCost,
 	shareLink,
 	onToggleShare = () => {},
 }) => {
 	const { toast } = useToast();
-	const numDays = differenceInDays(new Date(endDate), new Date(startDate)) + 1;
-	console.log('Share link in header ', shareLink);
+	const numDays =
+		differenceInDays(new Date(tourData.endDate), new Date(tourData.startDate)) +
+		1;
 	const safeShareLink = shareLink ?? {
 		isPublic: false,
 		shareLink: null,
@@ -44,11 +39,8 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 		tourId: '',
 	};
 
-	const shareActualLink = `https://spndy.xyz/tours/${
-		safeShareLink.shareLink || ''
-	}`;
+	const shareActualLink = `https://spndy.xyz/${safeShareLink.shareLink || ''}`;
 
-	console.log('ShareLink: ', safeShareLink, shareActualLink);
 	const handleCopy = () => {
 		navigator.clipboard.writeText(shareActualLink);
 		toast({
@@ -56,17 +48,31 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 			description: 'The link is copied to your clipboard',
 		});
 	};
+	const totalAmountByType = useMemo(() => {
+		if (!tourData?.entries?.length) return {};
+
+		return tourData.entries.reduce((acc, entry) => {
+			if (isNaN(Number(entry.amount))) return acc;
+
+			const type = entry.type;
+			if (!acc[type]) acc[type] = 0;
+
+			acc[type] += Number(entry.amount);
+			return acc;
+		}, {});
+	}, [tourData]);
+
 	return (
 		<div className="max-w-6xl mx-auto p-4">
 			<h1 className="text-3xl font-bold text-sky-500 text-center mb-2">
-				{name}
+				{tourData.name}
 			</h1>
 
 			<div className="flex items-center justify-center text-gray-600 mb-2">
 				<Calendar className="w-3 h-3 mr-1" />
 				<span className="text-xs">
-					{format(new Date(startDate), 'PPP')} –{' '}
-					{format(new Date(endDate), 'PPP')} • {location}
+					{format(new Date(tourData.startDate), 'PPP')} –{' '}
+					{format(new Date(tourData.endDate), 'PPP')} • {tourData.location}
 				</span>
 			</div>
 
@@ -77,12 +83,18 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 						<span className="text-sm font-medium">{numDays} days</span>
 					</div>
 
-					<div className="flex items-center">
-						<Wallet className="w-4 h-4 text-orange-700 mr-1" />
-						<span className="text-sm font-medium">
-							{formatCurrency(totalCost - totalShoppingCost)}
-						</span>
-					</div>
+					{Object.entries(totalAmountByType)
+						.filter(([_, amount]) => (amount as number) > 0)
+						.map(([type, amount]) => (
+							<div key={type} className="flex items-center">
+								{typeIcons[type] ?? (
+									<CreditCard className="w-4 h-4 text-gray-600 mr-1" />
+								)}
+								<span className="text-sm font-medium">
+									{formatCurrency(amount as number)}
+								</span>
+							</div>
+						))}
 
 					{totalShoppingCost > 0 && (
 						<div className="flex items-center">
@@ -96,7 +108,7 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 					<div className="flex items-center">
 						<BadgeDollarSign className="w-4 h-4 text-red-500 mr-1" />
 						<span className="text-sm font-medium">
-							{formatCurrency(totalCost)}
+							{formatCurrency(tourData.totalCost)}
 						</span>
 					</div>
 				</div>

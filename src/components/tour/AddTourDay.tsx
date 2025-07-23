@@ -32,7 +32,7 @@ const AddTourDay = () => {
 	const { toast } = useToast();
 	const { token } = useAuth();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const types = ['expense', 'experience', 'shopping'];
+	const types = ['food', 'expense', 'experience', 'hotel', 'shopping', 'transport'];
 	const today = new Date();
 
 	const isEditing = useMemo(
