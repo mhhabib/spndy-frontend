@@ -14,6 +14,7 @@ import { formatCurrency, ShareLink, Tour } from '@/utils/utils';
 import { Button } from '../ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { typeIcons } from '@/utils/TourUtils';
+import { cn } from '@/lib/utils';
 
 interface TourHeaderProps {
 	tourData: Tour;
@@ -96,15 +97,6 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 							</div>
 						))}
 
-					{totalShoppingCost > 0 && (
-						<div className="flex items-center">
-							<ShoppingBag className="w-4 h-4 text-purple-500 mr-1" />
-							<span className="text-sm font-medium">
-								{formatCurrency(totalShoppingCost)}
-							</span>
-						</div>
-					)}
-
 					<div className="flex items-center">
 						<BadgeDollarSign className="w-4 h-4 text-red-500 mr-1" />
 						<span className="text-sm font-medium">
@@ -118,7 +110,12 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 				<Button
 					variant="outline"
 					onClick={onToggleShare}
-					className="flex items-center gap-2"
+					className={cn(
+						'flex items-center gap-2',
+						safeShareLink.isPublic
+							? 'text-red-600 hover:bg-red-50'
+							: 'text-green-600 hover:bg-green-50'
+					)}
 				>
 					{safeShareLink.isPublic ? (
 						<ShieldOff className="w-4 h-4" />

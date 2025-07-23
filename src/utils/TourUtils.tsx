@@ -2,7 +2,7 @@ import {
 	Bed,
 	Car,
 	CreditCard,
-	ShoppingBag,
+	ShoppingCart,
 	Compass,
 	DollarSign,
 	Utensils,
@@ -19,7 +19,7 @@ export const getTypeIcon = (type: string) => {
 		case 'hotel':
 			return <Bed size={16} className="text-indigo-500" />;
 		case 'shopping':
-			return <ShoppingBag size={16} className="text-pink-600" />;
+			return <ShoppingCart size={16} className="text-pink-600" />;
 		case 'transport':
 			return <Car size={16} className="text-emerald-600" />;
 		default:
@@ -49,7 +49,7 @@ export const getTypeColorClass = (type: string) => {
 
 export const typeIcons = {
 	expense: <CreditCard className="w-4 h-4 text-orange-700 mr-1" />,
-	shopping: <ShoppingBag className="w-4 h-4 text-pink-600 mr-1" />,
+	shopping: <ShoppingCart className="w-4 h-4 text-pink-600 mr-1" />,
 	experience: <Compass className="w-4 h-4 text-blue-600 mr-1" />,
 	hotel: <Bed className="w-4 h-4 text-indigo-600 mr-1" />,
 	food: <Utensils className="w-4 h-4 text-amber-600 mr-1" />,

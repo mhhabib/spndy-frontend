@@ -217,7 +217,7 @@ const TourShareHandler = () => {
 														{day.description}
 													</span>
 													{day.amount !== null && day.type !== 'experience' && (
-														<span className="absolute right-0 top-0 text-sm font-medium text-red-600 bg-red-200 px-2 py-1 rounded-md">
+														<span className="absolute right-0 top-0 text-sm font-medium text-red-600 bg-red-200 px-2 py-1 rounded-bl-xl shadow-sm">
 															{formatCurrency(day.amount)}
 														</span>
 													)}
