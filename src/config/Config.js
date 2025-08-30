@@ -1,2 +1,4 @@
-// export const API_BASE_URL = 'https://spndy.xyz/api';
-export const API_BASE_URL = 'http://localhost:8008/api';
+export const API_BASE_URL =
+	import.meta.env.MODE === 'development'
+		? 'http://localhost:8008/api'
+		: 'https://spndy.xyz/api';
