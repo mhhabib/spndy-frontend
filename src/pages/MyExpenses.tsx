@@ -74,7 +74,6 @@ const MyExpenses = () => {
 						params: {
 							fromDate,
 							toDate,
-							email: email,
 						},
 						headers: {
 							Authorization: `Bearer ${localStorage.getItem('access_token')}`,

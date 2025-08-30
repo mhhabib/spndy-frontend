@@ -44,6 +44,8 @@ const Login = () => {
 		}
 	};
 
+	const isDev = import.meta.env.MODE === 'development';
+
 	return (
 		<div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
 			<div className="w-full max-w-md">
@@ -88,6 +90,20 @@ const Login = () => {
 							{isLoading ? 'Track regreting ....' : 'Track Regret'}
 						</Button>
 					</form>
+
+					{isDev && (
+						<div className="mt-4 p-4 border rounded bg-yellow-50 text-sm text-gray-700">
+							<p className="font-semibold mb-1">
+								Demo Credentials (Development Only):
+							</p>
+							<p>
+								Email: <span className="font-mono">dev@gmail.com</span>
+							</p>
+							<p>
+								Password: <span className="font-mono">qazwsx@123</span>
+							</p>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
