@@ -3,15 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { API_BASE_URL } from '@/config/Config';
 import { format, differenceInDays } from 'date-fns';
-import { formatCurrency, ShareLink } from '@/utils/utils';
-import {
-	Calendar,
-	CreditCard,
-	ShoppingBag,
-	BadgeDollarSign,
-	Info,
-	MapPin,
-} from 'lucide-react';
+import { formatCurrency } from '@/utils/utils';
+import { Calendar, CreditCard, BadgeDollarSign, MapPin } from 'lucide-react';
 import { getTypeColorClass, getTypeIcon, typeIcons } from '@/utils/TourUtils';
 import Footer from '@/components/Footer';
 

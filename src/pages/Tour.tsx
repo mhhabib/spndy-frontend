@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { API_BASE_URL } from '@/config/Config';
 import { useToast } from '@/hooks/use-toast';
 import { UUID } from 'crypto';
+import { useApiClient } from '@/utils/apiClient';
 
 export default function TourPlanner() {
 	const [activeTourDropdown, setActiveTourDropdown] = useState<UUID>(null);
@@ -20,12 +21,11 @@ export default function TourPlanner() {
 	const navigate = useNavigate();
 	const { token, userId } = useAuth();
 	const { toast } = useToast();
+	const apiClient = useApiClient();
 
 	const fetchTours = async () => {
 		try {
-			const response = await fetch(`${API_BASE_URL}/tours`);
-			if (!response.ok) throw new Error('Failed to fetch tours');
-			const data = await response.json();
+			const data = await apiClient.get('/tours');
 			const sortedTourData = data.sort((a, b) => {
 				const endA = new Date(a.endDate).getTime();
 				const endB = new Date(b.endDate).getTime();
@@ -134,84 +134,62 @@ export default function TourPlanner() {
 		setIsTourPublic(newIsPublic);
 
 		try {
-			const response = await fetch(`${API_BASE_URL}/tours/share`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
+			const updatedLink = await apiClient.post<typeof activeTour.shareLink>(
+				'/tours/share',
+				{
 					isPublic: newIsPublic,
 					tourId: activeTour.id,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json();
-				console.error('Error response:', errorData);
-				setIsTourPublic(currentPublicStatus);
-				return;
-			}
-
-			const updatedLink = await response.json();
+				}
+			);
 
 			setTours((prevTours) =>
 				prevTours.map((tour) =>
 					tour.id === activeTour.id ? { ...tour, shareLink: updatedLink } : tour
 				)
 			);
-		} catch (err) {
+		} catch (err: any) {
 			console.error('Error toggling share link:', err);
 			setIsTourPublic(currentPublicStatus);
 		}
 	};
 
-	const handleDeleteTour = async (id) => {
-		const response = await fetch(`${API_BASE_URL}/tours/${id}`, {
-			method: 'DELETE',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-		});
-		const { message } = await response.json();
-		if (response.ok) {
-			fetchTours();
+	const handleDeleteTour = async (id: string) => {
+		try {
+			const data = await apiClient.del<{ message: string }>(`/tours/${id}`);
 			toast({
 				title: 'Tour deleted!',
-				description: message,
+				description: data.message,
 				variant: 'destructive',
 			});
-		} else {
+			fetchTours();
+		} catch (err: any) {
+			console.error('Error deleting tour:', err);
 			toast({
 				title: 'Error deleting tour!',
-				description: message,
+				description:
+					err?.data?.message || err.message || 'Something went wrong',
 				variant: 'destructive',
 			});
 		}
 	};
 
-	const handleDeleteDayEntry = async (tourId, entryId) => {
-		const response = await fetch(
-			`${API_BASE_URL}/entries/${tourId}/${entryId}`,
-			{
-				method: 'DELETE',
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${token}`,
-				},
-			}
-		);
-		const { message } = await response.json();
-		if (response.ok) {
-			fetchTours();
+	const handleDeleteDayEntry = async (tourId: string, entryId: string) => {
+		try {
+			const data = await apiClient.del<{ message: string }>(
+				`/entries/${tourId}/${entryId}`
+			);
 			toast({
 				title: 'Day entry deleted!',
-				description: message,
+				description: data.message,
 				variant: 'destructive',
 			});
-		} else {
+			fetchTours();
+		} catch (err: any) {
+			console.error('Error deleting day entry:', err);
 			toast({
-				title: 'Error deleting tour!',
-				description: message,
+				title: 'Error deleting day entry!',
+				description:
+					err?.data?.message || err.message || 'Something went wrong',
 				variant: 'destructive',
 			});
 		}

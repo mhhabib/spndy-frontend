@@ -1,5 +1,4 @@
 import { useEffect, useState, useMemo } from 'react';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,19 +20,25 @@ import {
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
-import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
-import { API_BASE_URL } from '@/config/Config';
 import { Loader2 } from 'lucide-react';
+import { useApiClient } from '@/utils/apiClient';
 
 const AddTourDay = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { toast } = useToast();
-	const { token } = useAuth();
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const types = ['food', 'expense', 'experience', 'hotel', 'shopping', 'transport'];
+	const types = [
+		'food',
+		'expense',
+		'experience',
+		'hotel',
+		'shopping',
+		'transport',
+	];
 	const today = new Date();
+	const apiClient = useApiClient();
 
 	const isEditing = useMemo(
 		() => location.state?.isEditing || false,
@@ -97,44 +102,32 @@ const AddTourDay = () => {
 				type: formData.type,
 				tourId: formData.tourId,
 			};
+
 			if (isEditing) {
-				await axios.put(
-					`${API_BASE_URL}/entries/${tourDayToEdit.id}`,
-					tourDayData,
-					{
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
-					}
-				);
+				await apiClient.put(`/entries/${tourDayToEdit.id}`, tourDayData);
 				toast({
 					title: 'Success',
 					description: 'Tour day details updated successfully',
 				});
 				navigate('/tours');
 			} else {
-				await axios.post(`${API_BASE_URL}/entries`, tourDayData, {
-					headers: {
-						Authorization: `Bearer ${token}`,
-					},
-				});
+				await apiClient.post('/entries', tourDayData);
 				toast({
 					title: 'Success',
 					description: 'Tour day details added successfully',
 				});
 				navigate('/tours');
 			}
-		} catch (error) {
+		} catch (error: any) {
 			console.error(
-				`Error ${isEditing ? 'updating' : 'adding'} details:`,
+				`Error ${isEditing ? 'updating' : 'adding'} tour day:`,
 				error
 			);
 			toast({
 				title: 'Error',
 				description: `Failed to ${
 					isEditing ? 'update' : 'add'
-				} expense. Please try again.`,
+				} tour day. Please try again.`,
 				variant: 'destructive',
 			});
 		} finally {

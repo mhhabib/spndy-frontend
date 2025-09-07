@@ -6,7 +6,7 @@ import ExpenseSearch from '@/components/ExpenseSearch';
 import ExpenseList, { Expense } from '@/components/ExpenseList';
 import Footer from '@/components/Footer';
 import { ApiResponse } from '@/utils/utils';
-import { API_BASE_URL } from '@/config/Config';
+import { useApiClient } from '@/utils/apiClient';
 
 const Index = () => {
 	const [searchQuery, setSearchQuery] = useState('');
@@ -15,16 +15,13 @@ const Index = () => {
 	const nowDate = new Date();
 	const thisYear = nowDate.getFullYear();
 	const thisMonth = nowDate.getMonth() + 1;
+	const apiClient = useApiClient();
 
 	const fetchExpenseData = async () => {
 		try {
-			const response = await fetch(
-				`${API_BASE_URL}/reports/monthly/list/${thisYear}/${thisMonth}`
+			const data = await apiClient.get<ApiResponse>(
+				`/reports/monthly/list/${thisYear}/${thisMonth}`
 			);
-			if (!response.ok) {
-				throw new Error(`API request failed with status ${response.status}`);
-			}
-			const data: ApiResponse = await response.json();
 			const sortedExpenses = data.expenses.sort((a, b) => {
 				const dateDiff =
 					new Date(b.date).getTime() - new Date(a.date).getTime();

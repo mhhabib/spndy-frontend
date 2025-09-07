@@ -6,8 +6,6 @@ import {
 	CreditCard,
 	Share2,
 	ShieldOff,
-	ShoppingBag,
-	Wallet,
 } from 'lucide-react';
 import { format, differenceInDays } from 'date-fns';
 import { formatCurrency, ShareLink, Tour } from '@/utils/utils';
@@ -25,7 +23,6 @@ interface TourHeaderProps {
 
 const TourHeader: React.FC<TourHeaderProps> = ({
 	tourData,
-	totalShoppingCost,
 	shareLink,
 	onToggleShare = () => {},
 }) => {

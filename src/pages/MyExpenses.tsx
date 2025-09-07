@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
 import { Search, Calendar } from 'lucide-react';
-import axios from 'axios';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ExpenseList, { Expense } from '@/components/ExpenseList';
@@ -16,24 +15,10 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { colors, formatCurrency } from '@/utils/utils';
-import {
-	PieChart,
-	Pie,
-	Cell,
-	ResponsiveContainer,
-	Legend,
-	Tooltip,
-	BarChart,
-	Bar,
-	CartesianGrid,
-	XAxis,
-	YAxis,
-} from 'recharts';
-import { useAuth } from '@/contexts/AuthContext';
-import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
 import ExpenseExport from '@/components/ExpenseExport';
+import { useApiClient } from '@/utils/apiClient';
 
 interface CategoryData {
 	name: string;
@@ -55,7 +40,7 @@ const MyExpenses = () => {
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 
-	const { email } = useAuth();
+	const apiClient = useApiClient();
 
 	const isEditModeOn = localStorage.getItem('editMode') === 'true';
 
@@ -64,35 +49,37 @@ const MyExpenses = () => {
 			if (!dateRange?.from || !dateRange?.to) return;
 
 			setLoading(true);
+			setError(null);
+
 			try {
 				const fromDate = format(dateRange.from, 'yyyy-MM-dd');
 				const toDate = format(dateRange.to, 'yyyy-MM-dd');
 
-				const response = await axios.get(
-					`${API_BASE_URL}/reports/myexpense/range`,
-					{
-						params: {
-							fromDate,
-							toDate,
-						},
-						headers: {
-							Authorization: `Bearer ${localStorage.getItem('access_token')}`,
-						},
-					}
-				);
+				const data = await apiClient.get<{
+					totalExpense: number;
+					categoricalExpenses: {
+						categoryId: string;
+						categoryName: string;
+						total: number;
+					}[];
+					expenses: Expense[];
+				}>('/reports/myexpense/range', {
+					params: { fromDate, toDate },
+				});
 
-				setTotalExpenses(response.data.totalExpense);
-				const categories: CategoryData[] =
-					response.data.categoricalExpenses.map((item, index) => ({
+				setTotalExpenses(data.totalExpense);
+
+				const categories: CategoryData[] = data.categoricalExpenses.map(
+					(item, index) => ({
 						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
-					}));
-
+					})
+				);
 				setCategoryData(categories);
 
-				const sortedExpenses = response.data.expenses.sort((a, b) => {
+				const sortedExpenses = data.expenses.sort((a, b) => {
 					const dateDiff =
 						new Date(b.date).getTime() - new Date(a.date).getTime();
 					if (dateDiff !== 0) return dateDiff;
@@ -100,17 +87,14 @@ const MyExpenses = () => {
 						new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
 					);
 				});
-
 				setExpenses(sortedExpenses);
-
-				setError(null);
 			} catch (err) {
-				console.error('Error fetching expenses:', err);
 				setError('Failed to load expense data');
 			} finally {
 				setLoading(false);
 			}
 		};
+
 		fetchExpenses();
 	}, [dateRange]);
 

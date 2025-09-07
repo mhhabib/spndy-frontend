@@ -20,6 +20,7 @@ import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
 import ExpenseExport from '@/components/ExpenseExport';
+import { useApiClient } from '@/utils/apiClient';
 
 interface CategoryData {
 	name: string;
@@ -40,6 +41,7 @@ const Summary = () => {
 
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const apiClient = useApiClient();
 
 	useEffect(() => {
 		const fetchExpenses = async () => {
@@ -50,24 +52,31 @@ const Summary = () => {
 				const fromDate = format(dateRange.from, 'yyyy-MM-dd');
 				const toDate = format(dateRange.to, 'yyyy-MM-dd');
 
-				const response = await axios.get(`${API_BASE_URL}/reports/range`, {
-					params: {
-						fromDate,
-						toDate,
-					},
+				const data = await apiClient.get<{
+					totalExpense: number;
+					categoricalExpenses: {
+						categoryId: string;
+						categoryName: string;
+						total: number;
+					}[];
+					expenses: Expense[];
+				}>('/reports/range', {
+					params: { fromDate, toDate },
 				});
-				setTotalExpenses(response.data.totalExpense);
-				const categories: CategoryData[] =
-					response.data.categoricalExpenses.map((item, index) => ({
+
+				setTotalExpenses(data.totalExpense);
+				const categories: CategoryData[] = data.categoricalExpenses.map(
+					(item, index) => ({
 						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
-					}));
+					})
+				);
 
 				setCategoryData(categories);
 
-				const sortedExpenses = response.data.expenses.sort((a, b) => {
+				const sortedExpenses = data.expenses.sort((a, b) => {
 					const dateDiff =
 						new Date(b.date).getTime() - new Date(a.date).getTime();
 					if (dateDiff !== 0) return dateDiff;

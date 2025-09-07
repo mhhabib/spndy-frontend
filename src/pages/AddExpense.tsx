@@ -1,5 +1,5 @@
+// src/pages/AddExpense.tsx
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,64 +23,71 @@ import { useToast } from '@/hooks/use-toast';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
-import { API_BASE_URL } from '@/config/Config';
 import { Loader2 } from 'lucide-react';
+import { useApiClient } from '@/utils/apiClient';
+
+type Category = { id: number; name: string };
 
 const AddExpense = () => {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { toast } = useToast();
-	const { token, isAuthenticated } = useAuth();
-	const [categories, setCategories] = useState([]);
+	const { isAuthenticated } = useAuth();
+	const apiClient = useApiClient();
+
+	const [categories, setCategories] = useState<Category[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// Check if we're in edit mode based on the location state
-	const isEditing = location.state?.isEditing || false;
-	const expenseToEdit = location.state?.expense || null;
-	const categoryName = location.state?.categoryName || '';
+	// Edit mode detection
+	const isEditing = Boolean(location.state?.isEditing);
+	const expenseToEdit = location.state?.expense ?? null;
+	const categoryName = location.state?.categoryName ?? '';
 
-	// Initialize form with either existing expense data or defaults
+	// Initialize form state (safely handle missing expenseToEdit)
 	const [formData, setFormData] = useState({
-		description: isEditing ? expenseToEdit.description : '',
-		category: isEditing ? categoryName : '',
-		amount: isEditing ? expenseToEdit.amount.toString() : '',
-		date: isEditing
-			? new Date(expenseToEdit.date).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0],
+		description: isEditing && expenseToEdit ? expenseToEdit.description : '',
+		category: isEditing && categoryName ? categoryName : '',
+		amount: isEditing && expenseToEdit ? String(expenseToEdit.amount) : '',
+		date:
+			isEditing && expenseToEdit
+				? new Date(expenseToEdit.date).toISOString().split('T')[0]
+				: new Date().toISOString().split('T')[0],
 	});
 
-	const fetchCategories = useCallback(async () => {
-		try {
-			const { data } = await axios.get(`${API_BASE_URL}/categories`);
-			const sortedCategories = data
-				.map((category) => ({ id: category.id, name: category.name }))
-				.sort((a, b) => a.name.localeCompare(b.name));
-			setCategories(sortedCategories);
-		} catch (error) {
-			toast({
-				title: 'Error',
-				description: 'Failed to fetch categories',
-				variant: 'destructive',
-			});
-		}
-	}, [toast]);
-
 	useEffect(() => {
-		if (isAuthenticated) {
-			fetchCategories();
-		}
-	}, [isAuthenticated, fetchCategories]);
+		if (!isAuthenticated) return;
 
-	const handleChange = (e) => {
+		const fetchCategories = async () => {
+			try {
+				const data = await apiClient.get<Category[]>('/categories');
+				const sorted = (data || [])
+					.map((c) => ({ id: c.id, name: c.name }))
+					.sort((a, b) => a.name.localeCompare(b.name));
+				setCategories(sorted);
+			} catch (err) {
+				console.error('Failed to fetch categories', err);
+				// Safe to call toast here
+				toast({
+					title: 'Error',
+					description: 'Failed to fetch categories',
+					variant: 'destructive',
+				});
+			}
+		};
+
+		fetchCategories();
+	}, [isAuthenticated]);
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = e.target;
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const handleCategoryChange = (value) => {
+	const handleCategoryChange = (value: string) => {
 		setFormData((prev) => ({ ...prev, category: value }));
 	};
 
-	const handleSubmit = async (e) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
 
 		if (!formData.description || !formData.category || !formData.amount) {
@@ -106,31 +113,20 @@ const AddExpense = () => {
 				categoryId: selectedCategory.id,
 				date: formData.date || new Date().toISOString(),
 			};
-			if (isEditing) {
-	
-				await axios.put(
-					`${API_BASE_URL}/expenses/${expenseToEdit.id}`,
-					expenseData,
-					{
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${token}`,
-						},
-					}
-				);
+
+			if (isEditing && expenseToEdit && expenseToEdit.id) {
+				await apiClient.put(`/expenses/${expenseToEdit.id}`, expenseData);
 				toast({
 					title: 'Success',
 					description: 'Expense updated successfully',
 				});
 				navigate('/my-expenses');
 			} else {
-				await axios.post(`${API_BASE_URL}/expenses`, expenseData, {
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${token}`,
-					},
+				await apiClient.post('/expenses', expenseData);
+				toast({
+					title: 'Success',
+					description: 'Expense added successfully',
 				});
-				toast({ title: 'Success', description: 'Expense added successfully' });
 				navigate('/');
 			}
 		} catch (error) {
@@ -138,13 +134,21 @@ const AddExpense = () => {
 				`Error ${isEditing ? 'updating' : 'adding'} expense:`,
 				error
 			);
+			// If the error has a status & data (from useApiClient), show a helpful message
+			const status = (error as any)?.status;
+			const data = (error as any)?.data;
+			const serverMsg = data?.message || data?.error || null;
+
 			toast({
 				title: 'Error',
-				description: `Failed to ${
-					isEditing ? 'update' : 'add'
-				} expense. Please try again.`,
+				description: serverMsg
+					? `Failed to ${isEditing ? 'update' : 'add'} expense: ${serverMsg}`
+					: `Failed to ${
+							isEditing ? 'update' : 'add'
+					  } expense. Please try again.`,
 				variant: 'destructive',
 			});
+		} finally {
 			setIsSubmitting(false);
 		}
 	};
@@ -162,6 +166,7 @@ const AddExpense = () => {
 								: 'Enter the details of your new expense'}
 						</CardDescription>
 					</CardHeader>
+
 					<form onSubmit={handleSubmit}>
 						<CardContent className="space-y-4">
 							<div className="space-y-2">
@@ -175,6 +180,7 @@ const AddExpense = () => {
 									disabled={isSubmitting}
 								/>
 							</div>
+
 							<div className="space-y-2">
 								<Label htmlFor="category">Category</Label>
 								<Select
@@ -196,6 +202,7 @@ const AddExpense = () => {
 									</SelectContent>
 								</Select>
 							</div>
+
 							<div className="space-y-2">
 								<Label htmlFor="amount">Amount</Label>
 								<Input
@@ -210,6 +217,7 @@ const AddExpense = () => {
 									disabled={isSubmitting}
 								/>
 							</div>
+
 							<div className="space-y-2">
 								<Label htmlFor="date">Date</Label>
 								<Input
@@ -223,6 +231,7 @@ const AddExpense = () => {
 								/>
 							</div>
 						</CardContent>
+
 						<CardFooter className="flex justify-between">
 							<Button
 								type="button"
@@ -232,6 +241,7 @@ const AddExpense = () => {
 							>
 								Cancel
 							</Button>
+
 							<Button type="submit" disabled={isSubmitting}>
 								{isSubmitting ? (
 									<>
@@ -246,6 +256,7 @@ const AddExpense = () => {
 					</form>
 				</Card>
 			</main>
+
 			<Footer />
 		</div>
 	);

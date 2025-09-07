@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
 import { ApiResponse, colors, formatCurrency } from '@/utils/utils';
-import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
+import { useApiClient } from '@/utils/apiClient';
 
 interface CategoryData {
 	id: number;
@@ -17,6 +17,7 @@ const MonthSummary = ({ onCategoryClick }) => {
 	const [monthData, setMonthData] = useState<CategoryData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
+	const apiClient = useApiClient();
 
 	const nowDate = new Date();
 	const thisYear = nowDate.getFullYear();
@@ -26,13 +27,9 @@ const MonthSummary = ({ onCategoryClick }) => {
 		const fetchExpenseData = async () => {
 			try {
 				setIsLoading(true);
-				const response = await fetch(
-					`${API_BASE_URL}/reports/monthly/${thisYear}/${thisMonth}`
+				const data = await apiClient.get<ApiResponse>(
+					`/reports/monthly/${thisYear}/${thisMonth}`
 				);
-				if (!response.ok) {
-					throw new Error(`API request failed with status ${response.status}`);
-				}
-				const data: ApiResponse = await response.json();
 
 				setMonthTotal(data.totalExpense);
 				const categoryData: CategoryData[] = data.categoricalExpenses.map(

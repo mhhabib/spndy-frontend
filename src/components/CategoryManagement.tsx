@@ -13,7 +13,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { API_BASE_URL } from '@/config/Config';
+import { useApiClient } from '@/utils/apiClient';
 
 export interface Category {
 	id: string;
@@ -29,6 +29,7 @@ const CategoryManagement = () => {
 	const [editCategory, setEditCategory] = useState<Category | null>(null);
 	const [deleteId, setDeleteId] = useState<string | null>(null);
 	const { toast } = useToast();
+	const apiClient = useApiClient();
 
 	const isEditModeOn = localStorage.getItem('editMode') === 'true';
 
@@ -39,8 +40,7 @@ const CategoryManagement = () => {
 	// Fetch categories from API
 	const fetchCategories = async () => {
 		try {
-			const response = await fetch(`${API_BASE_URL}/categories`);
-			const data = await response.json();
+			const data = await apiClient.get('/categories');
 			const sortedCategories = data.sort((a: Category, b: Category) =>
 				a.name.localeCompare(b.name)
 			);
@@ -50,26 +50,19 @@ const CategoryManagement = () => {
 		}
 	};
 
+	// Add new category
 	const handleAddCategory = async () => {
 		if (!newCategoryName.trim()) return;
 
 		try {
-			const response = await fetch(`${API_BASE_URL}/categories`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({ name: newCategoryName.trim() }),
+			const newCategory = await apiClient.post('/categories', {
+				name: newCategoryName.trim(),
 			});
 
-			if (!response.ok) throw new Error('Failed to add category');
-
-			const newCategory = await response.json();
 			const sortedCategories = [...categories, newCategory].sort((a, b) =>
 				a.name.localeCompare(b.name)
 			);
 			setCategories(sortedCategories);
-
 			setNewCategoryName('');
 			setIsAddDialogOpen(false);
 
@@ -79,25 +72,22 @@ const CategoryManagement = () => {
 			});
 		} catch (error) {
 			console.error('Error adding category:', error);
+			toast({
+				title: 'Error',
+				description: 'Failed to add category. Please try again.',
+				variant: 'destructive',
+			});
 		}
 	};
 
+	// Edit category
 	const handleEditCategory = async () => {
 		if (!editCategory || !editCategory.name.trim()) return;
 
 		try {
-			const response = await fetch(
-				`${API_BASE_URL}/categories/${editCategory.id}`,
-				{
-					method: 'PUT',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify({ name: editCategory.name.trim() }),
-				}
-			);
-
-			if (!response.ok) throw new Error('Failed to update category');
+			await apiClient.put(`/categories/${editCategory.id}`, {
+				name: editCategory.name.trim(),
+			});
 
 			const sortedCategories = categories
 				.map((cat) =>
@@ -106,7 +96,6 @@ const CategoryManagement = () => {
 				.sort((a, b) => a.name.localeCompare(b.name));
 
 			setCategories(sortedCategories);
-
 			setIsEditDialogOpen(false);
 
 			toast({
@@ -115,6 +104,11 @@ const CategoryManagement = () => {
 			});
 		} catch (error) {
 			console.error('Error updating category:', error);
+			toast({
+				title: 'Error',
+				description: 'Failed to update category. Please try again.',
+				variant: 'destructive',
+			});
 		}
 	};
 
@@ -123,27 +117,7 @@ const CategoryManagement = () => {
 		if (!deleteId) return;
 
 		try {
-			const response = await fetch(`${API_BASE_URL}/categories/${deleteId}`, {
-				method: 'DELETE',
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => null);
-				if (response.status === 400) {
-					setIsDeleteDialogOpen(false);
-					toast({
-						title: 'Deletion Not Allowed',
-						description:
-							errorData?.message ||
-							'This category is linked to existing expense and cannot be deleted. Please remove or reassign the expenses before deleting the category.',
-						variant: 'destructive',
-					});
-					return;
-				}
-
-				throw new Error('Failed to delete category');
-			}
-
+			await apiClient.del(`/categories/${deleteId}`);
 			setCategories(categories.filter((cat) => cat.id !== deleteId));
 			setIsDeleteDialogOpen(false);
 
@@ -151,7 +125,21 @@ const CategoryManagement = () => {
 				title: 'Category deleted',
 				description: 'The category has been successfully deleted.',
 			});
-		} catch (error) {
+		} catch (error: any) {
+			// Handle 400 error separately if apiClient throws it
+			if (error.status === 400) {
+				setIsDeleteDialogOpen(false);
+				toast({
+					title: 'Deletion Not Allowed',
+					description:
+						error.data?.message ||
+						'This category is linked to existing expense and cannot be deleted. Please remove or reassign the expenses before deleting the category.',
+					variant: 'destructive',
+				});
+				return;
+			}
+
+			console.error('Error deleting category:', error);
 			toast({
 				title: 'Error',
 				description: 'An error occurred while deleting the category.',
