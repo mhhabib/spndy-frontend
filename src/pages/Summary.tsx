@@ -16,11 +16,11 @@ import {
 } from '@/components/ui/popover';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { colors, formatCurrency } from '@/utils/utils';
-import { API_BASE_URL } from '@/config/Config';
 import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
 import ExpenseExport from '@/components/ExpenseExport';
 import { useApiClient } from '@/utils/apiClient';
+import ExpenseSearch from '@/components/ExpenseSearch';
 
 interface CategoryData {
 	name: string;
@@ -112,8 +112,8 @@ const Summary = () => {
 		setExpenses(expenses.filter((expense) => expense.id !== id));
 	};
 
-	const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchQuery(e.target.value);
+	const handleSearch = (query: string) => {
+		setSearchQuery(query);
 	};
 
 	const formatDateRange = () => {
@@ -193,19 +193,8 @@ const Summary = () => {
 						)}
 					</CardContent>
 				</Card>
-
-				<div className="relative w-full animate-slide-in-bottom [animation-delay:300ms]">
-					<div className="relative">
-						<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-						<Input
-							type="text"
-							placeholder="Search expenses..."
-							value={searchQuery}
-							onChange={handleSearch}
-							className="pl-10 py-6 bg-white/70 backdrop-blur-md border-border/50 focus-visible:ring-primary"
-						/>
-					</div>
-				</div>
+				
+				<ExpenseSearch onSearch={handleSearch} />
 
 				{loading ? (
 					<div className="text-center p-6">

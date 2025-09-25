@@ -7,15 +7,27 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { BarChart, LogIn, Plane, Plus, Wallet } from 'lucide-react';
+import {
+	BarChart,
+	Laptop,
+	LogIn,
+	Moon,
+	Plane,
+	Plus,
+	Sun,
+	Wallet,
+} from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import habibAvatar from '@/avatar/habib.jpg';
 import kanjunAvatar from '@/avatar/kanjun.jpg';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const Navbar = () => {
 	const { username, email, isAuthenticated, logout, userId } = useAuth();
+	const { theme, setTheme, actualTheme } = useTheme();
+
 	const navigate = useNavigate();
 	const location = useLocation();
 	const { toast } = useToast();
@@ -102,6 +114,45 @@ const Navbar = () => {
 
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
+									<Button variant="ghost" size="icon" className="nav-icon">
+										{actualTheme === 'dark' ? (
+											<Moon className="h-5 w-5" />
+										) : (
+											<Sun className="h-5 w-5" />
+										)}
+										<span className="sr-only">Toggle theme</span>
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-40 bg-popover">
+									<DropdownMenuItem
+										onClick={() => setTheme('light')}
+										className={
+											theme === 'light' ? 'bg-primary/20 text-primary' : ''
+										}
+									>
+										<Sun className="h-4 w-4 mr-2" /> Light
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme('dark')}
+										className={
+											theme === 'dark' ? 'bg-primary/20 text-primary' : ''
+										}
+									>
+										<Moon className="h-4 w-4 mr-2" /> Dark
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										onClick={() => setTheme('system')}
+										className={
+											theme === 'system' ? 'bg-primary/20 text-primary' : ''
+										}
+									>
+										<Laptop className="h-4 w-4 mr-2" /> System
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
 									<Button
 										variant="ghost"
 										className={cn(
@@ -135,6 +186,15 @@ const Navbar = () => {
 										asChild
 									>
 										<Link to="/my-expenses">My Expenses</Link>
+									</DropdownMenuItem>
+									<DropdownMenuItem
+										className={cn(
+											'cursor-pointer',
+											isActive('/ledger') && 'bg-primary/20 text-primary'
+										)}
+										asChild
+									>
+										<Link to="/ledger">Ledgers</Link>
 									</DropdownMenuItem>
 									<DropdownMenuItem
 										className={cn(

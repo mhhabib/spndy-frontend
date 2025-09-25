@@ -13,35 +13,41 @@ const ExpenseCategory = ({ data, expenseTotal, onCategoryClick }) => {
 
 	return (
 		<div className="md:col-span-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
-			{data.map((category) => (
-				<div
-					onClick={() => handleClick(category.id)}
-					key={category.name}
-					className="cursor-pointer p-3 rounded-lg backdrop-blur-sm border border-border/50 shadow-sm hover-scale"
-					style={{
-						borderLeft: `2px solid ${category.color}`,
-						backgroundColor:
-							category.id === selectedId
-								? `${category.color}1A`
-								: 'rgba(255, 255, 255, 0.5)',
-					}}
-				>
-					<div className="flex items-center space-x-2 mb-1">
-						<div
-							className="w-3 h-3 rounded-full"
-							style={{ backgroundColor: category.color }}
-						></div>
-						<span className="text-xs font-medium">{category.name}</span>
+			{data.map((category) => {
+				const isSelected = category.id === selectedId;
+				return (
+					<div
+						onClick={() => handleClick(category.id)}
+						key={category.name}
+						className={`
+							cursor-pointer p-3 rounded-lg border shadow-sm
+							transition-colors duration-200
+							hover:brightness-105
+							bg-card text-card-foreground border-border
+						`}
+						style={{
+							borderLeft: `3px solid ${category.color}`,
+							backgroundColor: isSelected ? `${category.color}33` : undefined,
+						}}
+					>
+						<div className="flex items-center space-x-2 mb-1">
+							<div
+								className="w-3 h-3 rounded-full"
+								style={{ backgroundColor: category.color }}
+							></div>
+							<span className="text-xs font-medium">{category.name}</span>
+						</div>
+						<p className="text-base font-semibold">
+							{formatCurrency(category.value)}
+						</p>
+						<p className="text-xs text-muted-foreground">
+							{((category.value / expenseTotal) * 100).toFixed(2)}% of total
+						</p>
 					</div>
-					<p className="text-l font-semibold">
-						{formatCurrency(category.value)}
-					</p>
-					<p className="text-xs text-muted-foreground">
-						{((category.value / expenseTotal) * 100).toFixed(2)}% of total
-					</p>
-				</div>
-			))}
+				);
+			})}
 		</div>
 	);
 };
+
 export default ExpenseCategory;

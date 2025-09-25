@@ -12,15 +12,6 @@ import {
 	ChevronsLeft,
 	ChevronsRight,
 } from 'lucide-react';
-import {
-	Dialog,
-	DialogContent,
-	DialogDescription,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-	DialogTrigger,
-} from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { colors, formatCurrency } from '@/utils/utils';
 import { useNavigate } from 'react-router-dom';
@@ -30,6 +21,7 @@ import { API_BASE_URL } from '@/config/Config';
 import habibAvatar from '@/avatar/habib.jpg';
 import kanjunAvatar from '@/avatar/kanjun.jpg';
 import { isMobile as isMobileDevice } from 'react-device-detect';
+import ConfirmDialog from './ConfirmDialog';
 
 export interface Expense {
 	id: number;
@@ -382,7 +374,7 @@ const ExpenseList = ({
 		const isExpanded = expandedExpenseId === expense.id;
 
 		return (
-			<div className="mb-3 p-4 bg-white/30 backdrop-blur-sm rounded-lg border border-border/40">
+			<div className="mb-3 p-4 rounded-lg border shadow-sm bg-card text-card-foreground border-border">
 				<div className="flex items-center justify-between">
 					<div className="flex items-center gap-3">
 						{!isSelfExpense && (
@@ -398,13 +390,13 @@ const ExpenseList = ({
 									? expense.description
 									: truncateDescription(expense.description)}
 							</p>
-							<p className="text-xs text-gray-500">
+							<p className="text-xs text-muted-foreground">
 								{formatDate(expense.date)}
 							</p>
 						</div>
 					</div>
 					<div className="flex items-center gap-2">
-						<p className="text-sm font-medium whitespace-nowrap">
+						<p className="text-sm font-semibold whitespace-nowrap">
 							{formatCurrency(expense.amount)}
 						</p>
 						<Button
@@ -424,7 +416,7 @@ const ExpenseList = ({
 				</div>
 
 				{isExpanded && (
-					<div className="mt-3 pt-3 border-t border-border/40">
+					<div className="mt-3 pt-3 border-t border-border">
 						<div className="flex flex-col gap-2">
 							{expense.description.length > 20 && (
 								<div className="mb-2">
@@ -450,42 +442,27 @@ const ExpenseList = ({
 											<Edit className="h-4 w-4 mr-1" />
 											Edit
 										</Button>
-										<Dialog
+										<ConfirmDialog
 											open={isDeleteDialogOpen && deleteId === expense.id}
 											onOpenChange={setIsDeleteDialogOpen}
-										>
-											<DialogTrigger asChild>
+											title="Confirm Deletion"
+											description="Are you sure you want to delete this expense? This action cannot be undone."
+											confirmText="Delete"
+											cancelText="Cancel"
+											confirmVariant="destructive"
+											onConfirm={handleDelete}
+											trigger={
 												<Button
-													size="sm"
-													variant="outline"
-													className="h-8 text-destructive border-destructive hover:bg-destructive/10"
+													size="icon"
+													variant="ghost"
+													className="h-8 w-8 text-destructive hover:text-destructive-foreground hover:bg-destructive/20"
 													onClick={() => setDeleteId(expense.id)}
 												>
-													<Trash className="h-4 w-4 mr-1" />
-													Delete
+													<Trash className="h-4 w-4" />
+													<span className="sr-only">Delete</span>
 												</Button>
-											</DialogTrigger>
-											<DialogContent className="sm:max-w-[425px]">
-												<DialogHeader>
-													<DialogTitle>Confirm Deletion</DialogTitle>
-													<DialogDescription>
-														Are you sure you want to delete this expense? This
-														action cannot be undone.
-													</DialogDescription>
-												</DialogHeader>
-												<DialogFooter>
-													<Button
-														variant="outline"
-														onClick={() => setIsDeleteDialogOpen(false)}
-													>
-														Cancel
-													</Button>
-													<Button variant="destructive" onClick={handleDelete}>
-														Delete
-													</Button>
-												</DialogFooter>
-											</DialogContent>
-										</Dialog>
+											}
+										/>
 									</div>
 								)}
 							</div>
@@ -505,7 +482,7 @@ const ExpenseList = ({
 						<Button
 							variant="ghost"
 							size="sm"
-							className="flex items-center text-xs bg-gray-100"
+							className="flex items-center text-xs"
 							onClick={toggleSortByCategory}
 						>
 							Sort by Category {getSortIcon()}
@@ -535,7 +512,7 @@ const ExpenseList = ({
 					/* Desktop View */
 					<div className="relative overflow-x-auto rounded-lg">
 						<table className="w-full text-sm text-left">
-							<thead className="text-xs uppercase bg-gray-100 backdrop-blur-sm">
+							<thead className="text-xs uppercase bg-muted/40 text-muted-foreground">
 								<tr>
 									<th scope="col" className="px-4 py-3 whitespace-nowrap">
 										#
@@ -567,30 +544,28 @@ const ExpenseList = ({
 								{paginatedExpenses.map((expense, index) => (
 									<tr
 										key={expense.id}
-										className="expense-item border-b border-border/40 bg-white/30 backdrop-blur-sm last:border-0"
+										className="border-b border-border bg-card text-card-foreground last:border-0"
 									>
 										<td className="px-4 py-3 whitespace-nowrap">
 											{index + 1 + (currentPage - 1) * ITEMS_PER_PAGE}
 										</td>
 										<td className="px-4 py-3">
-											<div>
-												<div className="flex items-center gap-4">
-													{!isSelfExpense && (
-														<img
-															className="w-10 h-10 rounded-full"
-															src={getUserAvatar(
-																expense.User.username.split(' ')[0]
-															)}
-															alt={`${
-																expense.User.username.split(' ')[0]
-															} profile picture`}
-														/>
-													)}
-													<div className="font-medium dark:text-white">
-														<div>{expense.description}</div>
-														<div className="text-sm text-gray-500 dark:text-gray-400">
-															{formatDate(expense.date)}
-														</div>
+											<div className="flex items-center gap-4">
+												{!isSelfExpense && (
+													<img
+														className="w-10 h-10 rounded-full"
+														src={getUserAvatar(
+															expense.User.username.split(' ')[0]
+														)}
+														alt={`${
+															expense.User.username.split(' ')[0]
+														} profile`}
+													/>
+												)}
+												<div>
+													<div>{expense.description}</div>
+													<div className="text-sm text-muted-foreground">
+														{formatDate(expense.date)}
 													</div>
 												</div>
 											</div>
@@ -629,11 +604,16 @@ const ExpenseList = ({
 														<Edit className="h-4 w-4" />
 														<span className="sr-only">Edit</span>
 													</Button>
-													<Dialog
+													<ConfirmDialog
 														open={isDeleteDialogOpen && deleteId === expense.id}
 														onOpenChange={setIsDeleteDialogOpen}
-													>
-														<DialogTrigger asChild>
+														title="Confirm Deletion"
+														description="Are you sure you want to delete this expense? This action cannot be undone."
+														confirmText="Delete"
+														cancelText="Cancel"
+														confirmVariant="destructive"
+														onConfirm={handleDelete}
+														trigger={
 															<Button
 																size="icon"
 																variant="ghost"
@@ -643,38 +623,15 @@ const ExpenseList = ({
 																<Trash className="h-4 w-4" />
 																<span className="sr-only">Delete</span>
 															</Button>
-														</DialogTrigger>
-														<DialogContent className="sm:max-w-[425px]">
-															<DialogHeader>
-																<DialogTitle>Confirm Deletion</DialogTitle>
-																<DialogDescription>
-																	Are you sure you want to delete this expense?
-																	This action cannot be undone.
-																</DialogDescription>
-															</DialogHeader>
-															<DialogFooter>
-																<Button
-																	variant="outline"
-																	onClick={() => setIsDeleteDialogOpen(false)}
-																>
-																	Cancel
-																</Button>
-																<Button
-																	variant="destructive"
-																	onClick={handleDelete}
-																>
-																	Delete
-																</Button>
-															</DialogFooter>
-														</DialogContent>
-													</Dialog>
+														}
+													/>
 												</div>
 											</td>
 										)}
 									</tr>
 								))}
 								{paginatedExpenses.length === 0 && (
-									<tr className="border-b border-border/40 bg-white/30 backdrop-blur-sm">
+									<tr className="border-b border-border bg-card">
 										<td
 											colSpan={isEditModeOn ? 5 : 4}
 											className="px-4 py-10 text-center text-muted-foreground"

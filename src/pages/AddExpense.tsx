@@ -122,6 +122,7 @@ const AddExpense = () => {
 				});
 				navigate('/my-expenses');
 			} else {
+				console.log('New expense data ', expenseData);
 				await apiClient.post('/expenses', expenseData);
 				toast({
 					title: 'Success',
@@ -135,7 +136,6 @@ const AddExpense = () => {
 				error
 			);
 			// If the error has a status & data (from useApiClient), show a helpful message
-			const status = (error as any)?.status;
 			const data = (error as any)?.data;
 			const serverMsg = data?.message || data?.error || null;
 

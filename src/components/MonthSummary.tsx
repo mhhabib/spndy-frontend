@@ -57,19 +57,21 @@ const MonthSummary = ({ onCategoryClick }) => {
 
 	if (isLoading) {
 		return (
-			<Card>
-				<CardHeader className="pb-2"></CardHeader>
-				<CardContent>Loading expense data...</CardContent>
+			<Card className="w-full animate-pulse">
+				<CardHeader className="pb-2" />
+				<CardContent className="text-muted-foreground">
+					Loading expense data...
+				</CardContent>
 			</Card>
 		);
 	}
 
 	if (error) {
 		return (
-			<Card>
-				<CardHeader className="pb-2"></CardHeader>
+			<Card className="w-full">
+				<CardHeader className="pb-2" />
 				<CardContent>
-					<div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+					<div className="p-4 text-center rounded-lg bg-destructive/10 text-destructive">
 						{error}
 					</div>
 				</CardContent>
@@ -83,7 +85,7 @@ const MonthSummary = ({ onCategoryClick }) => {
 	});
 
 	return (
-		<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:200ms]">
+		<Card className="w-full animate-slide-in-bottom [animation-delay:200ms] bg-card text-card-foreground border border-border">
 			<CardHeader className="pb-2">
 				<CardTitle className="text-lg font-medium flex justify-between items-center">
 					<span>{currentMonth} - Expenses</span>
