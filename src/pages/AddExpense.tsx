@@ -37,6 +37,7 @@ const AddExpense = () => {
 
 	const [categories, setCategories] = useState<Category[]>([]);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+	const [errorAmount, setErrorAmount] = useState('');
 
 	// Edit mode detection
 	const isEditing = Boolean(location.state?.isEditing);
@@ -83,6 +84,115 @@ const AddExpense = () => {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
+	const validateAndCalculateAmount = (value) => {
+		const trimmed = value.trim();
+
+		// Empty input is valid (optional field)
+		if (!trimmed) {
+			return { isValid: true, value: '' };
+		}
+
+		// Check if it's a simple number first
+		const simpleNumber = parseFloat(trimmed);
+		if (!isNaN(simpleNumber) && /^-?\d*\.?\d+$/.test(trimmed)) {
+			if (!isFinite(simpleNumber)) {
+				return { isValid: false, error: 'Amount cannot be infinity' };
+			}
+			if (simpleNumber < 0) {
+				return { isValid: false, error: 'Amount cannot be negative' };
+			}
+			return { isValid: true, value: simpleNumber.toFixed(2) };
+		}
+
+		// Check if it contains math operators
+		if (/[+\-*/()]/.test(trimmed)) {
+			// Sanitize: only allow numbers, operators, decimal points, and parentheses
+			const sanitized = trimmed.replace(/[^0-9+\-*/.()]/g, '');
+
+			// Additional validation checks
+			if (sanitized !== trimmed.replace(/\s/g, '')) {
+				return { isValid: false, error: 'Contains invalid characters' };
+			}
+
+			// Check for invalid patterns
+			if (/^[+*/]|[+\-*/]{2,}|[+\-*/]$/.test(sanitized)) {
+				return { isValid: false, error: 'Invalid mathematical expression' };
+			}
+
+			// Check for empty parentheses
+			if (/\(\s*\)/.test(sanitized)) {
+				return { isValid: false, error: 'Empty parentheses are not allowed' };
+			}
+
+			// Check balanced parentheses
+			let balance = 0;
+			for (let char of sanitized) {
+				if (char === '(') balance++;
+				if (char === ')') balance--;
+				if (balance < 0) {
+					return { isValid: false, error: 'Unbalanced parentheses' };
+				}
+			}
+			if (balance !== 0) {
+				return { isValid: false, error: 'Unbalanced parentheses' };
+			}
+
+			try {
+				// Safely evaluate the expression
+				const result = Function(`'use strict'; return (${sanitized})`)();
+
+				if (typeof result !== 'number') {
+					return {
+						isValid: false,
+						error: 'Expression did not produce a number',
+					};
+				}
+
+				if (isNaN(result)) {
+					return { isValid: false, error: 'Invalid calculation result' };
+				}
+
+				if (!isFinite(result)) {
+					return { isValid: false, error: 'Result cannot be infinity' };
+				}
+
+				if (result < 0) {
+					return { isValid: false, error: 'Result cannot be negative' };
+				}
+
+				// Check for unreasonably large amounts
+				if (result > 999999999.99) {
+					return { isValid: false, error: 'Amount is too large' };
+				}
+
+				return { isValid: true, value: result.toFixed(2) };
+			} catch (error) {
+				return { isValid: false, error: 'Invalid mathematical expression' };
+			}
+		}
+
+		// If we get here, it's neither a valid number nor a valid expression
+		return {
+			isValid: false,
+			error: 'Please enter a valid number or expression',
+		};
+	};
+
+	const handleAmountBlur = () => {
+		const validation = validateAndCalculateAmount(formData.amount);
+
+		if (!validation.isValid) {
+			setErrorAmount(validation.error);
+			return;
+		}
+
+		if (validation.value) {
+			setFormData((prev) => ({ ...prev, amount: validation.value }));
+		}
+	};
+
+	const handleAmountFocus = () => setErrorAmount('');
+
 	const handleCategoryChange = (value: string) => {
 		setFormData((prev) => ({ ...prev, category: value }));
 	};
@@ -96,6 +206,13 @@ const AddExpense = () => {
 				description: 'Please fill all required fields',
 				variant: 'destructive',
 			});
+			return;
+		}
+
+		const amountValidation = validateAndCalculateAmount(formData.amount);
+
+		if (!amountValidation.isValid) {
+			setErrorAmount(amountValidation.error);
 			return;
 		}
 
@@ -208,14 +325,22 @@ const AddExpense = () => {
 								<Input
 									id="amount"
 									name="amount"
-									type="number"
+									type="text"
 									value={formData.amount}
 									onChange={handleChange}
-									placeholder="0.00"
-									min="0"
-									step="0.01"
+									onBlur={handleAmountBlur}
+									onFocus={handleAmountFocus}
+									placeholder="0.00 or 100+50"
 									disabled={isSubmitting}
+									className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+										errorAmount
+											? 'border-red-500 focus:ring-red-500'
+											: 'border-gray-300'
+									} ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''}`}
 								/>
+								{errorAmount && (
+									<p className="text-sm text-red-600 mt-1">{errorAmount}</p>
+								)}
 							</div>
 
 							<div className="space-y-2">
@@ -242,7 +367,10 @@ const AddExpense = () => {
 								Cancel
 							</Button>
 
-							<Button type="submit" disabled={isSubmitting}>
+							<Button
+								type="submit"
+								disabled={isSubmitting || errorAmount.length > 0}
+							>
 								{isSubmitting ? (
 									<>
 										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
