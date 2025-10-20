@@ -48,33 +48,34 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 	});
 
 	return (
-		<div className="md:col-span-2 bg-white rounded-xl shadow-sm p-4">
+		<div className="md:col-span-2 bg-background text-foreground rounded-xl shadow-sm p-4 transition-colors">
+			{/* Header */}
 			<div className="flex justify-between items-center mb-6">
-				<h2 className="text-xl font-bold text-gray-700">Tour Activities</h2>
+				<h2 className="text-xl font-bold">Tour Activities</h2>
 				<div className="inline-flex rounded-md shadow-sm" role="group">
 					<button
 						onClick={() => setTab('all')}
-						className={`px-3 py-1.5 text-sm font-medium border border-gray-300 rounded-l-md focus:z-10 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 ${
+						className={`px-3 py-1.5 text-sm font-medium border border-border rounded-l-md focus:z-10 focus:ring-2 focus:ring-ring focus:border-ring transition-colors ${
 							tab === 'all'
-								? 'bg-gray-600 text-white border-gray-800'
-								: 'bg-white text-gray-700 hover:bg-gray-50'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-background hover:bg-accent hover:text-accent-foreground'
 						}`}
 					>
 						All
 					</button>
 					<button
 						onClick={() => setTab('my')}
-						className={`px-3 py-1.5 text-sm font-medium border border-gray-300 -ml-px focus:z-10 focus:ring-2 focus:ring-gray-500 focus:border-gray-500 ${
+						className={`px-3 py-1.5 text-sm font-medium border border-border -ml-px focus:z-10 focus:ring-2 focus:ring-ring focus:border-ring transition-colors ${
 							tab === 'my'
-								? 'bg-gray-600 text-white border-gray-800'
-								: 'bg-white text-gray-700 hover:bg-gray-50'
+								? 'bg-primary text-primary-foreground'
+								: 'bg-background hover:bg-accent hover:text-accent-foreground'
 						}`}
 					>
 						My Entry
 					</button>
 					<button
 						onClick={() => onAddTourDay(activeTourId)}
-						className="text-gray-700 hover:text-white hover:bg-sky-500 text-sm px-3 py-1.5 border border-gray-300 rounded-r-md -ml-px flex items-center focus:z-10 focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+						className="text-foreground hover:text-primary hover:bg-accent text-sm px-3 py-1.5 border border-border rounded-r-md -ml-px flex items-center focus:z-10 focus:ring-2 focus:ring-ring focus:border-ring transition-colors"
 					>
 						<PlusCircle size={14} className="mr-1.5" />
 						<span>Add Entry</span>
@@ -82,19 +83,18 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 				</div>
 			</div>
 
+			{/* Tour Day Cards */}
 			<div className="space-y-4">
 				{sortedTourDays.length === 0 ? (
-					<div className="flex flex-col items-center justify-center py-10 px-4 bg-blue-50 border border-blue-200 rounded-lg text-center">
-						<Calendar size={36} className="text-blue-400 mb-3" />
-						<h3 className="text-lg font-semibold text-blue-700">
-							No days added yet
-						</h3>
-						<p className="text-sm text-blue-600 mt-1">
+					<div className="flex flex-col items-center justify-center py-10 px-4 bg-accent/20 border border-border rounded-lg text-center transition-colors">
+						<Calendar size={36} className="text-muted-foreground mb-3" />
+						<h3 className="text-lg font-semibold">No days added yet</h3>
+						<p className="text-sm text-muted-foreground mt-1">
 							You haven’t added any activities or events for this tour.
 						</p>
 						<button
 							onClick={() => onAddTourDay(activeTourId)}
-							className="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-md transition"
+							className="mt-4 inline-flex items-center px-4 py-2 text-sm font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
 						>
 							<PlusCircle size={16} className="mr-2" />
 							Add Tour Day
@@ -104,8 +104,8 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 					<>
 						{tab === 'my' && (
 							<div className="flex items-center gap-2">
-								<div className="flex-grow border-t border-dashed border-gray-300"></div>
-								<p className="text-xs text-gray-500 italic whitespace-nowrap">
+								<div className="flex-grow border-t border-dashed border-border"></div>
+								<p className="text-xs text-muted-foreground italic whitespace-nowrap">
 									My total tour cost: {formatCurrency(myTotalTourCost)}
 								</p>
 							</div>
@@ -114,7 +114,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 						{sortedTourDays.map((day) => (
 							<div
 								key={day.id}
-								className="p-4 rounded-lg bg-gray-50 hover:bg-gray-100 relative"
+								className="p-4 rounded-lg bg-muted/40 hover:bg-accent/30 transition-colors relative"
 							>
 								<div className="flex justify-between">
 									<div className="flex">
@@ -123,26 +123,24 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 											style={{
 												backgroundColor:
 													day.type === 'food'
-														? '#FEF3C7' // amber-100
+														? '#FEF3C7'
 														: day.type === 'expense'
-														? '#FEE2E2' // red-100
+														? '#FEE2E2'
 														: day.type === 'experience'
-														? '#DBEAFE' // blue-100
+														? '#DBEAFE'
 														: day.type === 'hotel'
-														? '#E0E7FF' // indigo-100
+														? '#E0E7FF'
 														: day.type === 'shopping'
-														? '#FCE7F3' // pink-100
+														? '#FCE7F3'
 														: day.type === 'transport'
-														? '#D1FAE5' // emerald-100
-														: '#F3F4F6', // gray-100 (default)
+														? '#D1FAE5'
+														: '#F3F4F6',
 											}}
 										>
 											{getTypeIcon(day.type)}
 										</div>
 										<div>
-											<h3 className="font-medium text-gray-800">
-												{day.description}
-											</h3>
+											<h3 className="font-medium">{day.description}</h3>
 											<div className="flex flex-wrap gap-2 mt-2">
 												<span
 													className={`text-xs px-2 py-1 rounded-full ${getTypeColorClass(
@@ -151,7 +149,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 												>
 													{day.type.charAt(0).toUpperCase() + day.type.slice(1)}
 												</span>
-												<span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 flex items-center">
+												<span className="text-xs px-2 py-1 rounded-full bg-accent/30 text-muted-foreground flex items-center">
 													<Calendar size={12} className="mr-1" />
 													{new Date(day.date).toLocaleDateString('en-US', {
 														month: 'short',
@@ -159,19 +157,20 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 													})}
 												</span>
 												{day.location && (
-													<span className="text-xs px-2 py-1 rounded-full bg-gray-100 text-gray-700 flex items-center">
+													<span className="text-xs px-2 py-1 rounded-full bg-accent/30 text-muted-foreground flex items-center">
 														<MapPin size={12} className="mr-1" />
 														{day.location}
 													</span>
 												)}
 												{day.amount !== null && day.type !== 'experience' && (
-													<span className="text-xs px-2 py-1 rounded-full bg-red-100 text-red-700 flex items-center">
+													<span className="text-xs px-2 py-1 rounded-full bg-destructive/20 text-destructive flex items-center">
 														{formatCurrency(day.amount)}
 													</span>
 												)}
 											</div>
 										</div>
 									</div>
+
 									{tab !== 'all' && (
 										<div className="relative">
 											<button
@@ -182,14 +181,15 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 														activeDayDropdown === day.id ? null : day.id
 													);
 												}}
-												className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
+												className="text-muted-foreground hover:text-foreground p-1 rounded-full hover:bg-accent/40 transition-colors"
 											>
 												<MoreVertical size={18} />
 											</button>
+
 											{activeDayDropdown === day.id && (
 												<div
 													id={`day-dropdown-${day.id}`}
-													className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
+													className="absolute right-0 mt-1 bg-popover text-popover-foreground shadow-lg rounded-md z-10 w-36 py-1 border border-border"
 												>
 													<button
 														onClick={(e) => {
@@ -197,7 +197,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 															onEditDay(day);
 															onToggleDropdown(null);
 														}}
-														className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+														className="w-full text-left px-4 py-2 text-sm hover:bg-accent/30 flex items-center transition-colors"
 													>
 														<Edit size={14} className="mr-2" />
 														Update Entry
@@ -208,7 +208,7 @@ const TourDaysList: React.FC<TourDaysListProps> = ({
 															onDeleteDay(activeTourId, day.id);
 															onToggleDropdown(null);
 														}}
-														className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+														className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-accent/30 flex items-center transition-colors"
 													>
 														<Trash2 size={14} className="mr-2" />
 														Delete Entry

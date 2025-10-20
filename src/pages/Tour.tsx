@@ -7,7 +7,6 @@ import TourDaysList from '@/components/tour/TourDaysList';
 import { Tour } from '@/utils/utils';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { API_BASE_URL } from '@/config/Config';
 import { useToast } from '@/hooks/use-toast';
 import { UUID } from 'crypto';
 import { useApiClient } from '@/utils/apiClient';
@@ -18,6 +17,7 @@ export default function TourPlanner() {
 	const [isTourPublic, setIsTourPublic] = useState<Boolean>(false);
 	const [tours, setTours] = useState<Tour[]>([]);
 	const [activeTourId, setActiveTourId] = useState<UUID>(null);
+
 	const navigate = useNavigate();
 	const { token, userId } = useAuth();
 	const { toast } = useToast();
@@ -35,9 +35,9 @@ export default function TourPlanner() {
 					const createdB = new Date(b.createdAt).getTime();
 					return createdB - createdA;
 				}
-
 				return endB - endA;
 			});
+
 			setTours(sortedTourData);
 			if (sortedTourData.length > 0) setActiveTourId(sortedTourData[0].id);
 		} catch (error) {
@@ -80,7 +80,7 @@ export default function TourPlanner() {
 			.reduce((sum, entry) => sum + Number(entry.amount), 0);
 	}, [tours, userId, activeTourId, isTourPublic]);
 
-	// Handle click outside to close dropdowns
+	// Handle click outside dropdowns
 	useEffect(() => {
 		function handleClickOutside(event) {
 			if (activeTourDropdown !== null) {
@@ -95,13 +95,10 @@ export default function TourPlanner() {
 					setActiveTourDropdown(null);
 				}
 			}
-
 			if (activeDayDropdown !== null) {
-				// Find the dropdown menu element
 				const dropdownElement = document.getElementById(
 					`day-dropdown-${activeDayDropdown}`
 				);
-				// If we clicked outside the dropdown, close it
 				if (
 					dropdownElement &&
 					!dropdownElement.contains(event.target) &&
@@ -112,12 +109,8 @@ export default function TourPlanner() {
 			}
 		}
 
-		// Add event listener
 		document.addEventListener('mousedown', handleClickOutside);
-		return () => {
-			// Clean up event listener
-			document.removeEventListener('mousedown', handleClickOutside);
-		};
+		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, [activeTourDropdown, activeDayDropdown]);
 
 	const handleTourClick = (tourId) => {
@@ -130,7 +123,6 @@ export default function TourPlanner() {
 
 		const currentPublicStatus = activeTour.shareLink?.isPublic ?? isTourPublic;
 		const newIsPublic = !currentPublicStatus;
-
 		setIsTourPublic(newIsPublic);
 
 		try {
@@ -196,9 +188,10 @@ export default function TourPlanner() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
+		<div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
 			<Navbar />
-			<main className="flex-grow max-w-full w-full mx-auto px-4 sm:px-6 py-6 texture-dots bg-gray-300">
+
+			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
 				{activeTour && (
 					<TourHeader
 						tourData={activeTour}
@@ -208,59 +201,54 @@ export default function TourPlanner() {
 					/>
 				)}
 
-				{/* Main content area */}
-				<div className="max-w-6xl mx-auto mt-4 px-4">
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-						{/* Tour list column */}
-						<div className="md:col-span-1">
-							<TourList
-								tours={tours}
-								activeTourId={activeTourId}
-								activeTourDropdown={activeTourDropdown}
-								onTourClick={handleTourClick}
-								onAddTour={() => navigate('/add-tour')}
-								onEditTour={(tour) =>
-									navigate('/add-tour', {
-										state: {
-											isEditing: true,
-											tour,
-										},
-									})
-								}
-								onDeleteTour={(id) => handleDeleteTour(id)}
-								onToggleDropdown={setActiveTourDropdown}
-							/>
-						</div>
+				<div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+					{/* Tour list */}
+					<div className="md:col-span-1 bg-card border border-border rounded-xl shadow-sm p-4">
+						<TourList
+							tours={tours}
+							activeTourId={activeTourId}
+							activeTourDropdown={activeTourDropdown}
+							onTourClick={handleTourClick}
+							onAddTour={() => navigate('/add-tour')}
+							onEditTour={(tour) =>
+								navigate('/add-tour', {
+									state: { isEditing: true, tour },
+								})
+							}
+							onDeleteTour={(id) => handleDeleteTour(id)}
+							onToggleDropdown={setActiveTourDropdown}
+						/>
+					</div>
 
-						{/* Tour days column - spans 2 columns */}
-						<div className="md:col-span-2">
-							<TourDaysList
-								tourDays={activeTour?.entries || []}
-								activeTourId={activeTourId}
-								activeDayDropdown={activeDayDropdown}
-								currentUserId={userId}
-								onAddTourDay={(tourId) =>
-									navigate('/add-tour-day', {
-										state: { tourId },
-									})
-								}
-								onEditDay={(day) =>
-									navigate('/add-tour-day', {
-										state: { day, isEditing: true },
-									})
-								}
-								onDeleteDay={(tourId, entryId) =>
-									handleDeleteDayEntry(tourId, entryId)
-								}
-								onToggleDropdown={(id) =>
-									setActiveDayDropdown((prev) => (prev === id ? null : id))
-								}
-								myTotalTourCost={myTotalTourCost}
-							/>
-						</div>
+					{/* Tour days */}
+					<div className="md:col-span-2 bg-card border border-border rounded-xl shadow-sm p-4">
+						<TourDaysList
+							tourDays={activeTour?.entries || []}
+							activeTourId={activeTourId}
+							activeDayDropdown={activeDayDropdown}
+							currentUserId={userId}
+							onAddTourDay={(tourId) =>
+								navigate('/add-tour-day', {
+									state: { tourId },
+								})
+							}
+							onEditDay={(day) =>
+								navigate('/add-tour-day', {
+									state: { day, isEditing: true },
+								})
+							}
+							onDeleteDay={(tourId, entryId) =>
+								handleDeleteDayEntry(tourId, entryId)
+							}
+							onToggleDropdown={(id) =>
+								setActiveDayDropdown((prev) => (prev === id ? null : id))
+							}
+							myTotalTourCost={myTotalTourCost}
+						/>
 					</div>
 				</div>
 			</main>
+
 			<Footer />
 		</div>
 	);

@@ -17,12 +17,13 @@ import ExpenseCategory from '@/utils/ExpenseCategory';
 import ExpenseChart from '@/utils/ExpenseChart';
 
 interface CategoryData {
+	id: number;
 	name: string;
 	value: number;
 	color: string;
 }
 
-const YearSummary = () => {
+const YearSummary = ({ onCategoryClick }) => {
 	const [yearTotal, setYearTotal] = useState(0);
 	const [yearData, setYearData] = useState<CategoryData[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -47,6 +48,7 @@ const YearSummary = () => {
 
 				const categoryData: CategoryData[] = data.categoricalExpenses.map(
 					(item, index) => ({
+						id: item.categoryId,
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
@@ -100,7 +102,11 @@ const YearSummary = () => {
 			<CardContent>
 				<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
 					<ExpenseChart expenseData={yearData} />
-					<ExpenseCategory data={yearData} expenseTotal={yearTotal} />
+					<ExpenseCategory
+						data={yearData}
+						expenseTotal={yearTotal}
+						onCategoryClick={(id: number) => onCategoryClick(id)}
+					/>
 				</div>
 			</CardContent>
 		</Card>

@@ -71,7 +71,7 @@ const Index = () => {
 			<Navbar />
 
 			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-				{shouldShowAnnualSummary && <YearSummary />}
+				{shouldShowAnnualSummary && <YearSummary onCategoryClick={(id: number) => handleCategoryId(id)} />}
 				<MonthSummary onCategoryClick={(id: number) => handleCategoryId(id)} />
 
 				<ExpenseSearch onSearch={handleSearch} />

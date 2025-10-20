@@ -152,7 +152,7 @@ const MyExpenses = () => {
 									selected={dateRange}
 									onSelect={setDateRange}
 									numberOfMonths={2}
-									className="bg-white rounded-md border border-border/50"
+									className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
 								/>
 							</PopoverContent>
 						</Popover>

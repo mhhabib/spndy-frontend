@@ -37,119 +37,100 @@ const CategoryManagement = () => {
 		fetchCategories();
 	}, []);
 
-	// Fetch categories from API
 	const fetchCategories = async () => {
 		try {
 			const data = await apiClient.get('/categories');
-			const sortedCategories = data.sort((a: Category, b: Category) =>
+			const sorted = data.sort((a: Category, b: Category) =>
 				a.name.localeCompare(b.name)
 			);
-			setCategories(sortedCategories);
+			setCategories(sorted);
 		} catch (error) {
 			console.error('Error fetching categories:', error);
 		}
 	};
 
-	// Add new category
 	const handleAddCategory = async () => {
 		if (!newCategoryName.trim()) return;
-
 		try {
-			const newCategory = await apiClient.post('/categories', {
+			const newCat = await apiClient.post('/categories', {
 				name: newCategoryName.trim(),
 			});
-
-			const sortedCategories = [...categories, newCategory].sort((a, b) =>
+			const sorted = [...categories, newCat].sort((a, b) =>
 				a.name.localeCompare(b.name)
 			);
-			setCategories(sortedCategories);
+			setCategories(sorted);
 			setNewCategoryName('');
 			setIsAddDialogOpen(false);
-
 			toast({
 				title: 'Category added',
-				description: `${newCategory.name} has been added to your categories.`,
+				description: `${newCat.name} has been added.`,
 			});
 		} catch (error) {
-			console.error('Error adding category:', error);
 			toast({
 				title: 'Error',
-				description: 'Failed to add category. Please try again.',
+				description: 'Failed to add category.',
 				variant: 'destructive',
 			});
 		}
 	};
 
-	// Edit category
 	const handleEditCategory = async () => {
 		if (!editCategory || !editCategory.name.trim()) return;
-
 		try {
 			await apiClient.put(`/categories/${editCategory.id}`, {
 				name: editCategory.name.trim(),
 			});
-
-			const sortedCategories = categories
-				.map((cat) =>
-					cat.id === editCategory.id ? { ...cat, name: editCategory.name } : cat
+			const sorted = categories
+				.map((c) =>
+					c.id === editCategory.id ? { ...c, name: editCategory.name } : c
 				)
 				.sort((a, b) => a.name.localeCompare(b.name));
-
-			setCategories(sortedCategories);
+			setCategories(sorted);
 			setIsEditDialogOpen(false);
-
 			toast({
 				title: 'Category updated',
-				description: 'Category has been successfully updated.',
+				description: 'Category successfully updated.',
 			});
 		} catch (error) {
-			console.error('Error updating category:', error);
 			toast({
 				title: 'Error',
-				description: 'Failed to update category. Please try again.',
+				description: 'Failed to update category.',
 				variant: 'destructive',
 			});
 		}
 	};
 
-	// Delete category
 	const handleDeleteCategory = async () => {
 		if (!deleteId) return;
-
 		try {
 			await apiClient.del(`/categories/${deleteId}`);
-			setCategories(categories.filter((cat) => cat.id !== deleteId));
+			setCategories(categories.filter((c) => c.id !== deleteId));
 			setIsDeleteDialogOpen(false);
-
 			toast({
 				title: 'Category deleted',
-				description: 'The category has been successfully deleted.',
+				description: 'Category successfully deleted.',
 			});
 		} catch (error: any) {
-			// Handle 400 error separately if apiClient throws it
 			if (error.status === 400) {
-				setIsDeleteDialogOpen(false);
 				toast({
 					title: 'Deletion Not Allowed',
 					description:
 						error.data?.message ||
-						'This category is linked to existing expense and cannot be deleted. Please remove or reassign the expenses before deleting the category.',
+						'This category is linked to existing expenses.',
 					variant: 'destructive',
 				});
-				return;
+			} else {
+				toast({
+					title: 'Error',
+					description: 'An error occurred during deletion.',
+					variant: 'destructive',
+				});
 			}
-
-			console.error('Error deleting category:', error);
-			toast({
-				title: 'Error',
-				description: 'An error occurred while deleting the category.',
-				variant: 'destructive',
-			});
 		}
 	};
 
-	const openEditDialog = (category: Category) => {
-		setEditCategory(category);
+	const openEditDialog = (cat: Category) => {
+		setEditCategory(cat);
 		setIsEditDialogOpen(true);
 	};
 
@@ -159,7 +140,7 @@ const CategoryManagement = () => {
 	};
 
 	return (
-		<Card className="card-glass w-full animate-fade-in">
+		<Card className="card-glass w-full animate-fade-in bg-background text-foreground border border-border shadow-sm">
 			<CardHeader className="pb-2 flex flex-row justify-between items-center">
 				<CardTitle className="text-lg font-medium">
 					Category Management
@@ -172,14 +153,13 @@ const CategoryManagement = () => {
 							Add Category
 						</Button>
 					</DialogTrigger>
-					<DialogContent className="sm:max-w-[425px]">
+					<DialogContent className="sm:max-w-[425px] bg-background text-foreground">
 						<DialogHeader>
 							<DialogTitle>Add New Category</DialogTitle>
 							<DialogDescription>
 								Enter a name for the new expense category.
 							</DialogDescription>
 						</DialogHeader>
-
 						<div className="mt-4 mb-4">
 							<Input
 								value={newCategoryName}
@@ -187,7 +167,6 @@ const CategoryManagement = () => {
 								placeholder="Category name"
 							/>
 						</div>
-
 						<DialogFooter>
 							<Button
 								variant="outline"
@@ -199,7 +178,7 @@ const CategoryManagement = () => {
 								onClick={handleAddCategory}
 								disabled={!newCategoryName.trim()}
 							>
-								Add Category
+								Add
 							</Button>
 						</DialogFooter>
 					</DialogContent>
@@ -207,7 +186,7 @@ const CategoryManagement = () => {
 			</CardHeader>
 
 			<CardContent>
-				<div className="relative overflow-x-auto rounded-lg">
+				<div className="relative overflow-x-auto rounded-lg border border-border/40">
 					<table className="w-full text-sm text-left">
 						<thead className="text-xs uppercase bg-muted/30 backdrop-blur-sm">
 							<tr>
@@ -225,7 +204,7 @@ const CategoryManagement = () => {
 							{categories.map((category) => (
 								<tr
 									key={category.id}
-									className="category-item border-b border-border/40 bg-white/30 backdrop-blur-sm last:border-0"
+									className="border-b border-border/40 bg-background/50 backdrop-blur-sm hover:bg-muted/30 transition-colors"
 								>
 									<td className="px-4 py-3">
 										<p className="font-medium">{category.name}</p>
@@ -233,6 +212,7 @@ const CategoryManagement = () => {
 									{isEditModeOn && (
 										<td className="px-4 py-3 text-right whitespace-nowrap">
 											<div className="flex justify-end gap-2">
+												{/* Edit */}
 												<Dialog
 													open={
 														isEditDialogOpen && editCategory?.id === category.id
@@ -250,14 +230,13 @@ const CategoryManagement = () => {
 															<span className="sr-only">Edit</span>
 														</Button>
 													</DialogTrigger>
-													<DialogContent className="sm:max-w-[425px]">
+													<DialogContent className="sm:max-w-[425px] bg-background text-foreground">
 														<DialogHeader>
 															<DialogTitle>Edit Category</DialogTitle>
 															<DialogDescription>
 																Update the name of the category.
 															</DialogDescription>
 														</DialogHeader>
-
 														<div className="mt-4 mb-4">
 															<Input
 																value={editCategory?.name || ''}
@@ -274,7 +253,6 @@ const CategoryManagement = () => {
 																placeholder="Category name"
 															/>
 														</div>
-
 														<DialogFooter>
 															<Button
 																variant="outline"
@@ -286,12 +264,13 @@ const CategoryManagement = () => {
 																onClick={handleEditCategory}
 																disabled={!editCategory?.name.trim()}
 															>
-																Save Changes
+																Save
 															</Button>
 														</DialogFooter>
 													</DialogContent>
 												</Dialog>
 
+												{/* Delete */}
 												<Dialog
 													open={isDeleteDialogOpen && deleteId === category.id}
 													onOpenChange={setIsDeleteDialogOpen}
@@ -300,14 +279,14 @@ const CategoryManagement = () => {
 														<Button
 															size="icon"
 															variant="ghost"
-															className="h-8 w-8 text-destructive hover:text-destructive-foreground hover:bg-destructive/20"
+															className="h-8 w-8 text-destructive hover:bg-destructive/20"
 															onClick={() => openDeleteDialog(category.id)}
 														>
 															<Trash className="h-4 w-4" />
 															<span className="sr-only">Delete</span>
 														</Button>
 													</DialogTrigger>
-													<DialogContent className="sm:max-w-[425px]">
+													<DialogContent className="sm:max-w-[425px] bg-background text-foreground">
 														<DialogHeader>
 															<DialogTitle>Confirm Deletion</DialogTitle>
 															<DialogDescription>
@@ -336,8 +315,9 @@ const CategoryManagement = () => {
 									)}
 								</tr>
 							))}
+
 							{categories.length === 0 && (
-								<tr className="border-b border-border/40 bg-white/30 backdrop-blur-sm">
+								<tr className="border-b border-border/40 bg-background/50 backdrop-blur-sm">
 									<td
 										colSpan={2}
 										className="px-4 py-10 text-center text-muted-foreground"

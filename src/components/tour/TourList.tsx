@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import {
 	Calendar,
 	Compass,
@@ -42,16 +42,18 @@ const TourList: React.FC<TourListProps> = ({
 		const stored = localStorage.getItem('addnewtour');
 		return stored === 'true';
 	}, []);
+
 	return (
-		<div className="bg-white rounded-xl shadow-sm p-4">
+		<div className="bg-card border border-border rounded-xl shadow-sm p-4 transition-colors duration-300">
+			{/* Header */}
 			<div className="flex justify-between items-center mb-6">
-				<h2 className="text-xl font-semibold text-gray-700">My tours</h2>
+				<h2 className="text-lg font-semibold text-foreground">My Tours</h2>
 				{shouldAddNewTourButtonShown && (
 					<button
-						className="text-gray-700 hover:text-green-600 text-sm px-3 py-1.5 rounded-md flex items-center"
 						onClick={onAddTour}
+						className="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-md border border-border bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
 					>
-						<PlusCircle size={14} className="mr-1.5" />
+						<PlusCircle size={14} />
 						<span>Add Tour</span>
 					</button>
 				)}
@@ -66,10 +68,10 @@ const TourList: React.FC<TourListProps> = ({
 						<div
 							key={tour.id}
 							onClick={() => onTourClick(tour.id)}
-							className={`p-3 rounded-lg cursor-pointer relative transition-colors duration-200 ${
+							className={`p-3 rounded-lg cursor-pointer relative transition-all duration-200 border ${
 								isActive
-									? 'bg-emerald-50 border-l-4 border-emerald-500'
-									: 'bg-gray-50 hover:bg-gray-100'
+									? 'border-primary bg-primary/10'
+									: 'border-transparent hover:bg-muted/60'
 							}`}
 						>
 							<div className="flex items-center justify-between">
@@ -77,19 +79,19 @@ const TourList: React.FC<TourListProps> = ({
 								<div className="flex items-center">
 									<Compass
 										className={`${
-											isActive ? 'text-emerald-500' : 'text-gray-400'
+											isActive ? 'text-primary' : 'text-muted-foreground'
 										} mr-3`}
 										size={22}
 									/>
 									<div>
-										<h3 className="font-medium text-gray-800">{tour.name}</h3>
-										<div className="text-sm text-gray-500 flex items-center mt-1">
+										<h3 className="font-medium text-foreground">{tour.name}</h3>
+										<div className="text-sm text-muted-foreground flex items-center mt-1">
 											<Calendar size={14} className="mr-1" />
 											<span>
 												{formatDateRange(tour.startDate, tour.endDate)}
 											</span>
 										</div>
-										<div className="text-sm text-gray-500 flex items-center mt-1">
+										<div className="text-sm text-muted-foreground flex items-center mt-1">
 											<MapPin size={14} className="mr-1" />
 											<span>{tour.location}</span>
 										</div>
@@ -107,7 +109,7 @@ const TourList: React.FC<TourListProps> = ({
 													activeTourDropdown === tour.id ? null : tour.id
 												);
 											}}
-											className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200"
+											className="p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
 										>
 											<MoreVertical size={18} />
 										</button>
@@ -115,7 +117,7 @@ const TourList: React.FC<TourListProps> = ({
 										{activeTourDropdown === tour.id && (
 											<div
 												id={`tour-dropdown-${tour.id}`}
-												className="absolute right-0 mt-1 bg-white shadow-lg rounded-md z-10 w-36 py-1 border border-gray-200"
+												className="absolute right-0 mt-1 bg-popover text-popover-foreground shadow-md rounded-md z-10 w-40 border border-border py-1"
 											>
 												<button
 													onClick={(e) => {
@@ -123,9 +125,9 @@ const TourList: React.FC<TourListProps> = ({
 														onEditTour(tour);
 														onToggleDropdown(null);
 													}}
-													className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center"
+													className="w-full text-left px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
 												>
-													<Edit size={14} className="mr-2" />
+													<Edit size={14} />
 													Update Tour
 												</button>
 												<button
@@ -134,9 +136,9 @@ const TourList: React.FC<TourListProps> = ({
 														onDeleteTour(tour.id);
 														onToggleDropdown(null);
 													}}
-													className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 flex items-center"
+													className="w-full text-left px-4 py-2 text-sm text-destructive hover:bg-destructive/10 flex items-center gap-2"
 												>
-													<Trash2 size={14} className="mr-2" />
+													<Trash2 size={14} />
 													Delete Tour
 												</button>
 											</div>
@@ -147,6 +149,13 @@ const TourList: React.FC<TourListProps> = ({
 						</div>
 					);
 				})}
+
+				{tours.length === 0 && (
+					<div className="text-center text-muted-foreground py-6 text-sm">
+						No tours found.{' '}
+						{shouldAddNewTourButtonShown && 'Create your first one!'}
+					</div>
+				)}
 			</div>
 		</div>
 	);
