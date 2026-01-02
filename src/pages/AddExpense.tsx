@@ -20,11 +20,16 @@ import {
 	CardDescription,
 } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import Footer from '@/components/Footer';
 import { useAuth } from '@/contexts/AuthContext';
-import Navbar from '@/components/Navbar';
-import { Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
 import { useApiClient } from '@/utils/apiClient';
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
 
 type Category = { id: number; name: string };
 
@@ -342,16 +347,41 @@ const AddExpense = () => {
 						</div>
 
 						<div className="space-y-2">
-							<Label htmlFor="date">Date</Label>
-							<Input
-								id="date"
-								name="date"
-								type="date"
-								value={formData.date}
-								onChange={handleChange}
-								className="bg-white/70 backdrop-blur-sm"
-								disabled={isSubmitting}
-							/>
+							<Label>Date</Label>
+
+							<Popover>
+								<PopoverTrigger asChild>
+									<Button
+										variant="outline"
+										disabled={isSubmitting}
+										className="w-full justify-start text-left font-normal"
+									>
+										<CalendarIcon className="mr-2 h-4 w-4 opacity-70" />
+										{formData.date
+											? format(new Date(formData.date), 'PPP')
+											: 'Pick a date'}
+									</Button>
+								</PopoverTrigger>
+
+								<PopoverContent
+									className="w-auto p-0 bg-background border border-border shadow-lg z-50"
+									align="start"
+								>
+									<Calendar
+										mode="single"
+										selected={new Date(formData.date)}
+										onSelect={(date) =>
+											setFormData((prev) => ({
+												...prev,
+												date: format(date, 'yyyy-MM-dd'),
+											}))
+										}
+										modifiers={{ today: false }}
+										modifiersClassNames={{ today: '' }}
+										initialFocus
+									/>
+								</PopoverContent>
+							</Popover>
 						</div>
 					</CardContent>
 
