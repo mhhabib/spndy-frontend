@@ -1,5 +1,5 @@
 // src/pages/AddExpense.tsx
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +28,7 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@/components/ui/popover';
-import { format } from 'date-fns';
+import { format, isValid } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 
 type Category = { id: number; name: string };
@@ -370,12 +370,14 @@ const AddExpense = () => {
 									<Calendar
 										mode="single"
 										selected={new Date(formData.date)}
-										onSelect={(date) =>
+										onSelect={(date) => {
+											if (!date || !isValid(date)) return;
+
 											setFormData((prev) => ({
 												...prev,
 												date: format(date, 'yyyy-MM-dd'),
-											}))
-										}
+											}));
+										}}
 										modifiers={{ today: false }}
 										modifiersClassNames={{ today: '' }}
 										initialFocus

@@ -28,7 +28,7 @@ const MyExpenses = () => {
 	const [searchQuery, setSearchQuery] = useState('');
 	const [dateRange, setDateRange] = useState<DateRange | undefined>({
 		from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-		to: new Date(),
+		to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
 	});
 	const [totalExpenses, setTotalExpenses] = useState(0);
 	const [expenses, setExpenses] = useState<Expense[]>([]);
