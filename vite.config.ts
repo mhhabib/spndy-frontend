@@ -29,8 +29,8 @@ export default defineConfig(({ mode }) => ({
 				background_color: '#ffffff',
 				display: 'standalone',
 				scope: '/',
-				start_url: 'https://spndy.xyz/',
-				id: 'https://spndy.xyz/',
+				start_url: '/',
+				id: '/',
 				icons: [
 					{
 						src: '/icons/icon-192x192.png',
@@ -53,7 +53,17 @@ export default defineConfig(({ mode }) => ({
 			workbox: {
 				runtimeCaching: [
 					{
-						// ✅ Your API caching
+						urlPattern: /favicon\.(svg|ico)(\?.*)?$/,
+						handler: 'NetworkFirst',
+						options: {
+							cacheName: 'favicon-cache',
+							expiration: {
+								maxEntries: 2,
+								maxAgeSeconds: 60 * 60, // 1 hour
+							},
+						},
+					},
+					{
 						urlPattern: /^https:\/\/spndy\.xyz\/api\/.*$/,
 						handler: 'NetworkFirst',
 						options: {
@@ -66,14 +76,13 @@ export default defineConfig(({ mode }) => ({
 						},
 					},
 					{
-						// Cache static images and icons
 						urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/,
 						handler: 'CacheFirst',
 						options: {
 							cacheName: 'image-cache',
 							expiration: {
 								maxEntries: 60,
-								maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+								maxAgeSeconds: 7 * 24 * 60 * 60, // 1 hour
 							},
 						},
 					},

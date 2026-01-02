@@ -1,6 +1,4 @@
 import { useState, useEffect, useMemo } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import TourHeader from '@/components/tour/TourHeader';
 import TourList from '@/components/tour/TourList';
 import TourDaysList from '@/components/tour/TourDaysList';
@@ -188,68 +186,62 @@ export default function TourPlanner() {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-			<Navbar />
+		<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+			{activeTour && (
+				<TourHeader
+					tourData={activeTour}
+					totalShoppingCost={totalShoppingCost}
+					shareLink={activeTour.shareLink}
+					onToggleShare={handleToggleShare}
+				/>
+			)}
 
-			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-				{activeTour && (
-					<TourHeader
-						tourData={activeTour}
-						totalShoppingCost={totalShoppingCost}
-						shareLink={activeTour.shareLink}
-						onToggleShare={handleToggleShare}
+			<div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+				{/* Tour list */}
+				<div className="md:col-span-1 bg-card border border-border rounded-xl shadow-sm p-4">
+					<TourList
+						tours={tours}
+						activeTourId={activeTourId}
+						activeTourDropdown={activeTourDropdown}
+						onTourClick={handleTourClick}
+						onAddTour={() => navigate('/add-tour')}
+						onEditTour={(tour) =>
+							navigate('/add-tour', {
+								state: { isEditing: true, tour },
+							})
+						}
+						onDeleteTour={(id) => handleDeleteTour(id)}
+						onToggleDropdown={setActiveTourDropdown}
 					/>
-				)}
-
-				<div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-					{/* Tour list */}
-					<div className="md:col-span-1 bg-card border border-border rounded-xl shadow-sm p-4">
-						<TourList
-							tours={tours}
-							activeTourId={activeTourId}
-							activeTourDropdown={activeTourDropdown}
-							onTourClick={handleTourClick}
-							onAddTour={() => navigate('/add-tour')}
-							onEditTour={(tour) =>
-								navigate('/add-tour', {
-									state: { isEditing: true, tour },
-								})
-							}
-							onDeleteTour={(id) => handleDeleteTour(id)}
-							onToggleDropdown={setActiveTourDropdown}
-						/>
-					</div>
-
-					{/* Tour days */}
-					<div className="md:col-span-2 bg-card border border-border rounded-xl shadow-sm p-4">
-						<TourDaysList
-							tourDays={activeTour?.entries || []}
-							activeTourId={activeTourId}
-							activeDayDropdown={activeDayDropdown}
-							currentUserId={userId}
-							onAddTourDay={(tourId) =>
-								navigate('/add-tour-day', {
-									state: { tourId },
-								})
-							}
-							onEditDay={(day) =>
-								navigate('/add-tour-day', {
-									state: { day, isEditing: true },
-								})
-							}
-							onDeleteDay={(tourId, entryId) =>
-								handleDeleteDayEntry(tourId, entryId)
-							}
-							onToggleDropdown={(id) =>
-								setActiveDayDropdown((prev) => (prev === id ? null : id))
-							}
-							myTotalTourCost={myTotalTourCost}
-						/>
-					</div>
 				</div>
-			</main>
 
-			<Footer />
-		</div>
+				{/* Tour days */}
+				<div className="md:col-span-2 bg-card border border-border rounded-xl shadow-sm p-4">
+					<TourDaysList
+						tourDays={activeTour?.entries || []}
+						activeTourId={activeTourId}
+						activeDayDropdown={activeDayDropdown}
+						currentUserId={userId}
+						onAddTourDay={(tourId) =>
+							navigate('/add-tour-day', {
+								state: { tourId },
+							})
+						}
+						onEditDay={(day) =>
+							navigate('/add-tour-day', {
+								state: { day, isEditing: true },
+							})
+						}
+						onDeleteDay={(tourId, entryId) =>
+							handleDeleteDayEntry(tourId, entryId)
+						}
+						onToggleDropdown={(id) =>
+							setActiveDayDropdown((prev) => (prev === id ? null : id))
+						}
+						myTotalTourCost={myTotalTourCost}
+					/>
+				</div>
+			</div>
+		</main>
 	);
 }

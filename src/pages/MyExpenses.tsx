@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DateRange } from 'react-day-picker';
 import { format } from 'date-fns';
-import { Search, Calendar } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import { Calendar } from 'lucide-react';
 import ExpenseList, { Expense } from '@/components/ExpenseList';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
 	Popover,
 	PopoverContent,
@@ -127,89 +124,83 @@ const MyExpenses = () => {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Navbar />
-
-			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-				<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-					<h1 className="text-2xl font-bold">My Expenses</h1>
-					<div className="flex items-center gap-2">
-						<Popover>
-							<PopoverTrigger asChild>
-								<Button
-									variant="outline"
-									className="w-full sm:w-auto justify-start gap-2"
-								>
-									<Calendar className="h-4 w-4" />
-									{formatDateRange()}
-								</Button>
-							</PopoverTrigger>
-							<PopoverContent className="w-auto p-0" align="end">
-								<CalendarComponent
-									initialFocus
-									mode="range"
-									defaultMonth={dateRange?.from}
-									selected={dateRange}
-									onSelect={setDateRange}
-									numberOfMonths={2}
-									className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
-								/>
-							</PopoverContent>
-						</Popover>
-						<ExpenseExport
-							expenses={filteredExpenses}
-							categoryData={categoryData}
-							totalExpenses={totalExpenses}
-							dateRange={dateRange}
-						/>
-					</div>
-				</div>
-
-				<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:100ms]">
-					<CardHeader className="pb-2">
-						<CardTitle className="text-lg font-medium flex justify-between items-center">
-							<span>Selected Period Expenses</span>
-							<span className="text-primary">
-								{loading ? 'Loading...' : formatCurrency(totalExpenses || 0)}
-							</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent>
-						{error && (
-							<div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
-								{error}
-							</div>
-						)}
-						{!error && (
-							<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
-								<ExpenseChart expenseData={categoryData} />
-								<ExpenseCategory
-									data={categoryData}
-									expenseTotal={totalExpenses}
-									onCategoryClick={(id: number) => handleCategoryId(id)}
-								/>
-							</div>
-						)}
-					</CardContent>
-				</Card>
-
-				<ExpenseSearch onSearch={handleSearch} />
-
-				{loading ? (
-					<div className="text-center p-6">
-						<p>Loading expenses...</p>
-					</div>
-				) : (
-					<ExpenseList
+		<div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+				<h1 className="text-2xl font-bold">My Expenses</h1>
+				<div className="flex items-center gap-2">
+					<Popover>
+						<PopoverTrigger asChild>
+							<Button
+								variant="outline"
+								className="w-full sm:w-auto justify-start gap-2"
+							>
+								<Calendar className="h-4 w-4" />
+								{formatDateRange()}
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-auto p-0" align="end">
+							<CalendarComponent
+								initialFocus
+								mode="range"
+								defaultMonth={dateRange?.from}
+								selected={dateRange}
+								onSelect={setDateRange}
+								numberOfMonths={2}
+								className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
+							/>
+						</PopoverContent>
+					</Popover>
+					<ExpenseExport
 						expenses={filteredExpenses}
-						isEditModeOn={isEditModeOn}
-						isSelfExpense={true}
-						onDeleteExpense={handleDeleteExpense}
+						categoryData={categoryData}
+						totalExpenses={totalExpenses}
+						dateRange={dateRange}
 					/>
-				)}
-			</main>
+				</div>
+			</div>
 
-			<Footer />
+			<Card className="card-glass w-full animate-slide-in-bottom [animation-delay:100ms]">
+				<CardHeader className="pb-2">
+					<CardTitle className="text-lg font-medium flex justify-between items-center">
+						<span>Selected Period Expenses</span>
+						<span className="text-primary">
+							{loading ? 'Loading...' : formatCurrency(totalExpenses || 0)}
+						</span>
+					</CardTitle>
+				</CardHeader>
+				<CardContent>
+					{error && (
+						<div className="p-4 text-center text-red-500 bg-red-50 rounded-lg">
+							{error}
+						</div>
+					)}
+					{!error && (
+						<div className="grid grid-cols-1 md:grid-cols-7 gap-4">
+							<ExpenseChart expenseData={categoryData} />
+							<ExpenseCategory
+								data={categoryData}
+								expenseTotal={totalExpenses}
+								onCategoryClick={(id: number) => handleCategoryId(id)}
+							/>
+						</div>
+					)}
+				</CardContent>
+			</Card>
+
+			<ExpenseSearch onSearch={handleSearch} />
+
+			{loading ? (
+				<div className="text-center p-6">
+					<p>Loading expenses...</p>
+				</div>
+			) : (
+				<ExpenseList
+					expenses={filteredExpenses}
+					isEditModeOn={isEditModeOn}
+					isSelfExpense={true}
+					onDeleteExpense={handleDeleteExpense}
+				/>
+			)}
 		</div>
 	);
 };

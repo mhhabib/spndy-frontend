@@ -13,15 +13,21 @@
 		<meta property="og:image" content="https://spndy.xyz/preview.png" />
 		<meta property="og:url" content="https://spndy.xyz" />
 		<meta property="og:type" content="website" />
+
+		<!-- Required for PWA -->
+		<link rel="manifest" href="/manifest.webmanifest" />
+		<meta name="theme-color" content="#0ea5e9" />
+
 		<!-- iOS PWA support -->
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="mobile-web-app-capable" content="yes" />
 		<meta
 			name="apple-mobile-web-app-status-bar-style"
 			content="black-translucent"
 		/>
 		<meta name="apple-mobile-web-app-title" content="Spndy" />
 		<link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-		<meta name="theme-color" content="#0ea5e9" />
+		<link rel="apple-touch-startup-image" href="/icons/icon-512x512.png" />
+		<link rel="icon" href="/favicon.svg?v=2" type="image/svg+xml" />
 	</head>
 
 	<body>

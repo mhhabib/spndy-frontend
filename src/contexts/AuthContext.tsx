@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { API_BASE_URL } from '@/config/Config';
+import queryClient from '@/lib/queryClient';
 
 /**
  * Configuration
@@ -164,6 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		} finally {
 			setToken(null);
 			updateTokenInfo(null);
+			queryClient.clear();
 		}
 	}, [updateTokenInfo]);
 

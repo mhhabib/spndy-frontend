@@ -271,121 +271,116 @@ const AddExpense = () => {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Navbar />
-			<main className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6">
-				<Card className="card-glass w-full animate-fade-in">
-					<CardHeader>
-						<CardTitle>{isEditing ? 'Edit Expense' : 'Add Expense'}</CardTitle>
-						<CardDescription>
-							{isEditing
-								? 'Update the details of your expense'
-								: 'Enter the details of your new expense'}
-						</CardDescription>
-					</CardHeader>
+		<div className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6">
+			<Card className="card-glass w-full animate-fade-in">
+				<CardHeader>
+					<CardTitle>{isEditing ? 'Edit Expense' : 'Add Expense'}</CardTitle>
+					<CardDescription>
+						{isEditing
+							? 'Update the details of your expense'
+							: 'Enter the details of your new expense'}
+					</CardDescription>
+				</CardHeader>
 
-					<form onSubmit={handleSubmit}>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label htmlFor="description">Description</Label>
-								<Input
-									id="description"
-									name="description"
-									value={formData.description}
-									onChange={handleChange}
-									placeholder="What did you spend on?"
-									disabled={isSubmitting}
-								/>
-							</div>
+				<form onSubmit={handleSubmit}>
+					<CardContent className="space-y-4">
+						<div className="space-y-2">
+							<Label htmlFor="description">Description</Label>
+							<Input
+								id="description"
+								name="description"
+								value={formData.description}
+								onChange={handleChange}
+								placeholder="What did you spend on?"
+								disabled={isSubmitting}
+							/>
+						</div>
 
-							<div className="space-y-2">
-								<Label htmlFor="category">Category</Label>
-								<Select
-									value={formData.category}
-									onValueChange={handleCategoryChange}
-									disabled={isSubmitting}
-								>
-									<SelectTrigger id="category">
-										<SelectValue placeholder="Select category" />
-									</SelectTrigger>
-									<SelectContent
-										style={{ maxHeight: '160px', overflowY: 'auto' }}
-									>
-										{categories.map(({ id, name }) => (
-											<SelectItem key={id} value={name}>
-												{name}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-
-							<div className="space-y-2">
-								<Label htmlFor="amount">Amount</Label>
-								<Input
-									id="amount"
-									name="amount"
-									type="text"
-									value={formData.amount}
-									onChange={handleChange}
-									onBlur={handleAmountBlur}
-									onFocus={handleAmountFocus}
-									placeholder="0.00 or 100+50"
-									disabled={isSubmitting}
-									className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-										errorAmount
-											? 'border-red-500 focus:ring-red-500'
-											: 'border-gray-300'
-									} ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''}`}
-								/>
-								{errorAmount && (
-									<p className="text-sm text-red-600 mt-1">{errorAmount}</p>
-								)}
-							</div>
-
-							<div className="space-y-2">
-								<Label htmlFor="date">Date</Label>
-								<Input
-									id="date"
-									name="date"
-									type="date"
-									value={formData.date}
-									onChange={handleChange}
-									className="bg-white/70 backdrop-blur-sm"
-									disabled={isSubmitting}
-								/>
-							</div>
-						</CardContent>
-
-						<CardFooter className="flex justify-between">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => navigate('/')}
+						<div className="space-y-2">
+							<Label htmlFor="category">Category</Label>
+							<Select
+								value={formData.category}
+								onValueChange={handleCategoryChange}
 								disabled={isSubmitting}
 							>
-								Cancel
-							</Button>
+								<SelectTrigger id="category">
+									<SelectValue placeholder="Select category" />
+								</SelectTrigger>
+								<SelectContent
+									style={{ maxHeight: '160px', overflowY: 'auto' }}
+								>
+									{categories.map(({ id, name }) => (
+										<SelectItem key={id} value={name}>
+											{name}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 
-							<Button
-								type="submit"
-								disabled={isSubmitting || errorAmount.length > 0}
-							>
-								{isSubmitting ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										{isEditing ? 'Updating...' : 'Adding...'}
-									</>
-								) : (
-									<>{isEditing ? 'Update Expense' : 'Add Expense'}</>
-								)}
-							</Button>
-						</CardFooter>
-					</form>
-				</Card>
-			</main>
+						<div className="space-y-2">
+							<Label htmlFor="amount">Amount</Label>
+							<Input
+								id="amount"
+								name="amount"
+								type="text"
+								value={formData.amount}
+								onChange={handleChange}
+								onBlur={handleAmountBlur}
+								onFocus={handleAmountFocus}
+								placeholder="0.00 or 100+50"
+								disabled={isSubmitting}
+								className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+									errorAmount
+										? 'border-red-500 focus:ring-red-500'
+										: 'border-gray-300'
+								} ${isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''}`}
+							/>
+							{errorAmount && (
+								<p className="text-sm text-red-600 mt-1">{errorAmount}</p>
+							)}
+						</div>
 
-			<Footer />
+						<div className="space-y-2">
+							<Label htmlFor="date">Date</Label>
+							<Input
+								id="date"
+								name="date"
+								type="date"
+								value={formData.date}
+								onChange={handleChange}
+								className="bg-white/70 backdrop-blur-sm"
+								disabled={isSubmitting}
+							/>
+						</div>
+					</CardContent>
+
+					<CardFooter className="flex justify-between">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => navigate('/')}
+							disabled={isSubmitting}
+						>
+							Cancel
+						</Button>
+
+						<Button
+							type="submit"
+							disabled={isSubmitting || errorAmount.length > 0}
+						>
+							{isSubmitting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									{isEditing ? 'Updating...' : 'Adding...'}
+								</>
+							) : (
+								<>{isEditing ? 'Update Expense' : 'Add Expense'}</>
+							)}
+						</Button>
+					</CardFooter>
+				</form>
+			</Card>
 		</div>
 	);
 };

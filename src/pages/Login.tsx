@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import AuthLayout from '@/components/auth/AuthLayout';
 
 const Login = () => {
 	const [email, setEmail] = useState('');
@@ -47,63 +48,76 @@ const Login = () => {
 	const isDev = import.meta.env.MODE === 'development';
 
 	return (
-		<div className="min-h-screen flex flex-col items-center justify-center px-4 py-8">
-			<div className="w-full max-w-md">
-				<div className="text-center mb-8">
-					<h1 className="text-3xl font-bold mb-2">Spndy Returns!</h1>
-					<p className="text-muted-foreground">
-						Let’s find out who’s been eating your money.
-					</p>
+		<AuthLayout
+			title="Welcome Back"
+			subtitle="Sign in to continue managing your finances"
+		>
+			<form onSubmit={handleSubmit} className="space-y-4">
+				<div className="space-y-2">
+					<Label htmlFor="email">Email</Label>
+					<Input
+						id="email"
+						type="email"
+						placeholder="you@example.com"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						required
+					/>
 				</div>
 
-				<div className="bg-card rounded-lg shadow-lg p-6 border">
-					<form onSubmit={handleSubmit} className="space-y-4">
-						<div className="space-y-2">
-							<Label htmlFor="email">Email</Label>
-							<Input
-								id="email"
-								type="email"
-								placeholder="your@email.com"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-								required
-							/>
-						</div>
-
-						<div className="space-y-2">
-							<div className="flex items-center justify-between">
-								<Label htmlFor="password">Password</Label>
-							</div>
-							<Input
-								id="password"
-								type="password"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-								required
-							/>
-						</div>
-
-						<Button type="submit" className="w-full" disabled={isLoading}>
-							{isLoading ? 'Track regreting ....' : 'Track Regret'}
-						</Button>
-					</form>
-
-					{isDev && (
-						<div className="mt-4 p-4 border rounded bg-yellow-50 text-sm text-gray-700">
-							<p className="font-semibold mb-1">
-								Demo Credentials (Development Only):
-							</p>
-							<p>
-								Email: <span className="font-mono">dev@gmail.com</span>
-							</p>
-							<p>
-								Password: <span className="font-mono">qazwsx@123</span>
-							</p>
-						</div>
-					)}
+				<div className="space-y-2">
+					<Label htmlFor="password">Password</Label>
+					<Input
+						id="password"
+						type="password"
+						placeholder="••••••••"
+						value={password}
+						onChange={(e) => setPassword(e.target.value)}
+						required
+					/>
 				</div>
-			</div>
-		</div>
+
+				<div className="text-right">
+					<Link
+						to="/forgot-password"
+						className="text-sm text-primary hover:underline"
+					>
+						Forgot password?
+					</Link>
+				</div>
+
+				<Button
+					type="submit"
+					className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
+					disabled={isLoading}
+				>
+					{isLoading ? 'Signing in...' : 'Sign In'}
+				</Button>
+
+				<p className="text-center text-sm text-muted-foreground">
+					Don't have an account?{' '}
+					<Link
+						to="/ticket"
+						className="text-primary hover:underline font-medium"
+					>
+						Sign up
+					</Link>
+				</p>
+				{isDev && (
+					<div className="mt-4 p-4 border rounded bg-yellow-50 text-sm text-gray-700">
+						<p className="font-semibold mb-1">
+							Demo Credentials (Development Only):
+						</p>
+						<p>
+							Email: <span className="font-mono">dev@gmail.com</span>
+						</p>
+						<p>
+							Password: <span className="font-mono">qazwsx@123</span>
+						</p>
+					</div>
+				)}
+			</form>
+		</AuthLayout>
 	);
 };
 

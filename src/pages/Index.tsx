@@ -1,10 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import Navbar from '@/components/Navbar';
 import YearSummary from '@/components/YearSummary';
 import MonthSummary from '@/components/MonthSummary';
 import ExpenseSearch from '@/components/ExpenseSearch';
 import ExpenseList, { Expense } from '@/components/ExpenseList';
-import Footer from '@/components/Footer';
 import { ApiResponse } from '@/utils/utils';
 import { useApiClient } from '@/utils/apiClient';
 
@@ -67,24 +65,20 @@ const Index = () => {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Navbar />
+		<div className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
+			{shouldShowAnnualSummary && (
+				<YearSummary onCategoryClick={(id: number) => handleCategoryId(id)} />
+			)}
+			<MonthSummary onCategoryClick={(id: number) => handleCategoryId(id)} />
 
-			<main className="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-				{shouldShowAnnualSummary && <YearSummary onCategoryClick={(id: number) => handleCategoryId(id)} />}
-				<MonthSummary onCategoryClick={(id: number) => handleCategoryId(id)} />
+			<ExpenseSearch onSearch={handleSearch} />
 
-				<ExpenseSearch onSearch={handleSearch} />
-
-				<ExpenseList
-					expenses={filteredExpenses}
-					isEditModeOn={false}
-					isSelfExpense={false}
-					onDeleteExpense={handleDeleteExpense}
-				/>
-			</main>
-
-			<Footer />
+			<ExpenseList
+				expenses={filteredExpenses}
+				isEditModeOn={false}
+				isSelfExpense={false}
+				onDeleteExpense={handleDeleteExpense}
+			/>
 		</div>
 	);
 };

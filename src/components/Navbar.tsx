@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import habibAvatar from '@/avatar/habib.jpg';
 import kanjunAvatar from '@/avatar/kanjun.jpg';
+import navbarLogo from '@/avatar/logo.svg';
 import { useTheme } from '@/contexts/ThemeContext';
 
 const Navbar = () => {
@@ -55,8 +56,12 @@ const Navbar = () => {
 			<div className="max-w-7xl mx-auto flex items-center justify-between">
 				<div>
 					<Link to="/" className="flex items-center space-x-2">
-						<div className="flex items-center gap-2">
-							<Wallet size={20} className="text-primary" />
+						<div className="flex items-center gap-2 hover:drop-shadow-[0_0_1em_rgba(50,255,100,0.8)]">
+							<img
+								className="w-6 h-6 rounded-full transition-all duration-600 animate-spin-slow"
+								src={navbarLogo}
+								alt="navbar-logo"
+							/>
 							<span className="text-2xl font-bold tracking-wide text-primary">
 								SPNDY
 							</span>
