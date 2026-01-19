@@ -76,17 +76,6 @@ export default defineConfig(({ mode }) => ({
 						},
 					},
 					{
-						urlPattern: /\.(?:png|jpg|jpeg|svg|gif|ico)$/,
-						handler: 'CacheFirst',
-						options: {
-							cacheName: 'image-cache',
-							expiration: {
-								maxEntries: 60,
-								maxAgeSeconds: 7 * 24 * 60 * 60, // 1 hour
-							},
-						},
-					},
-					{
 						// Cache Google Fonts or CDN assets
 						urlPattern: /^https:\/\/fonts\.(?:googleapis|gstatic)\.com\/.*/i,
 						handler: 'CacheFirst',
@@ -99,6 +88,9 @@ export default defineConfig(({ mode }) => ({
 						},
 					},
 				],
+				cleanupOutdatedCaches: true,
+				skipWaiting: true,
+				clientsClaim: true,
 			},
 		}),
 	].filter(Boolean),

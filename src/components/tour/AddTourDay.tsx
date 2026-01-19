@@ -139,122 +139,118 @@ const AddTourDay = () => {
 	};
 
 	return (
-		<div className="min-h-screen flex flex-col">
-			<Navbar />
-			<main className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-6">
-				<Card className="card-glass w-full animate-fade-in">
-					<CardHeader>
-						<CardTitle>
-							{isEditing
-								? 'Update the details for this specific tour day'
-								: 'Fill in the details for this specific tour day'}
-						</CardTitle>
-						<CardDescription>
-							{isEditing
-								? 'Update the details of your tour day information'
-								: 'Enter the details of your tour day information'}
-						</CardDescription>
-					</CardHeader>
-					<form onSubmit={handleSubmit}>
-						<CardContent className="space-y-4">
-							<div className="space-y-2">
-								<Label htmlFor="description">Description</Label>
-								<Input
-									id="description"
-									name="description"
-									value={formData.description}
-									onChange={handleChange}
-									placeholder="Dine at coral station"
-									disabled={isSubmitting}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="type">Type</Label>
-								<Select
-									value={formData.type}
-									onValueChange={handleTypeChange}
-									disabled={isSubmitting}
-								>
-									<SelectTrigger id="type">
-										<SelectValue placeholder="Select Type" />
-									</SelectTrigger>
-									<SelectContent
-										style={{ maxHeight: '160px', overflowY: 'auto' }}
-									>
-										{types.map((name) => (
-											<SelectItem key={name} value={name}>
-												{name.replace(/^./, (char) => char.toUpperCase())}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
-							{formData.type !== 'experience' && (
-								<div className="space-y-2">
-									<Label htmlFor="amount">Amount</Label>
-									<Input
-										id="amount"
-										name="amount"
-										type="number"
-										value={formData.amount}
-										onChange={handleChange}
-										placeholder="0.00"
-										min="0"
-										step="0.01"
-										disabled={isSubmitting}
-									/>
-								</div>
-							)}
-							<div className="space-y-2">
-								<Label htmlFor="location">Location(Optional)</Label>
-								<Input
-									id="location"
-									name="location"
-									type="location"
-									value={formData.location}
-									onChange={handleChange}
-									placeholder="Dhaka, Bangladesh"
-									disabled={isSubmitting}
-								/>
-							</div>
-							<div className="space-y-2">
-								<Label htmlFor="date">Date</Label>
-								<Input
-									id="date"
-									name="date"
-									type="date"
-									value={formData.date}
-									onChange={handleChange}
-									className="bg-white/70 backdrop-blur-sm"
-									disabled={isSubmitting}
-								/>
-							</div>
-						</CardContent>
-						<CardFooter className="flex justify-between">
-							<Button
-								type="button"
-								variant="outline"
-								onClick={() => navigate('/tours')}
+		<main className="flex-grow max-w-3xl w-full mx-auto px-4 sm:px-6 py-8">
+			<Card className="card-glass w-full animate-fade-in">
+				<CardHeader>
+					<CardTitle>
+						{isEditing
+							? 'Update the details for this specific tour day'
+							: 'Fill in the details for this specific tour day'}
+					</CardTitle>
+					<CardDescription>
+						{isEditing
+							? 'Update the details of your tour day information'
+							: 'Enter the details of your tour day information'}
+					</CardDescription>
+				</CardHeader>
+				<form onSubmit={handleSubmit}>
+					<CardContent className="space-y-4">
+						<div className="space-y-2">
+							<Label htmlFor="description">Description</Label>
+							<Input
+								id="description"
+								name="description"
+								value={formData.description}
+								onChange={handleChange}
+								placeholder="Dine at coral station"
+								disabled={isSubmitting}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="type">Type</Label>
+							<Select
+								value={formData.type}
+								onValueChange={handleTypeChange}
 								disabled={isSubmitting}
 							>
-								Cancel
-							</Button>
-							<Button type="submit" disabled={isSubmitting}>
-								{isSubmitting ? (
-									<>
-										<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-										{isEditing ? 'Updating...' : 'Adding...'}
-									</>
-								) : (
-									<>{isEditing ? 'Update details' : 'Add details'}</>
-								)}
-							</Button>
-						</CardFooter>
-					</form>
-				</Card>
-			</main>
-			<Footer />
-		</div>
+								<SelectTrigger id="type">
+									<SelectValue placeholder="Select Type" />
+								</SelectTrigger>
+								<SelectContent
+									style={{ maxHeight: '160px', overflowY: 'auto' }}
+								>
+									{types.map((name) => (
+										<SelectItem key={name} value={name}>
+											{name.replace(/^./, (char) => char.toUpperCase())}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						{formData.type !== 'experience' && (
+							<div className="space-y-2">
+								<Label htmlFor="amount">Amount</Label>
+								<Input
+									id="amount"
+									name="amount"
+									type="number"
+									value={formData.amount}
+									onChange={handleChange}
+									placeholder="0.00"
+									min="0"
+									step="0.01"
+									disabled={isSubmitting}
+								/>
+							</div>
+						)}
+						<div className="space-y-2">
+							<Label htmlFor="location">Location(Optional)</Label>
+							<Input
+								id="location"
+								name="location"
+								type="location"
+								value={formData.location}
+								onChange={handleChange}
+								placeholder="Dhaka, Bangladesh"
+								disabled={isSubmitting}
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="date">Date</Label>
+							<Input
+								id="date"
+								name="date"
+								type="date"
+								value={formData.date}
+								onChange={handleChange}
+								className="bg-white/70 backdrop-blur-sm"
+								disabled={isSubmitting}
+							/>
+						</div>
+					</CardContent>
+					<CardFooter className="flex justify-between">
+						<Button
+							type="button"
+							variant="outline"
+							onClick={() => navigate('/tours')}
+							disabled={isSubmitting}
+						>
+							Cancel
+						</Button>
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									{isEditing ? 'Updating...' : 'Adding...'}
+								</>
+							) : (
+								<>{isEditing ? 'Update details' : 'Add details'}</>
+							)}
+						</Button>
+					</CardFooter>
+				</form>
+			</Card>
+		</main>
 	);
 };
 
