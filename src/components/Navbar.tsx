@@ -52,8 +52,8 @@ const Navbar = () => {
 	};
 
 	return (
-		<header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border shadow-xs w-full px-4 py-3 sm:px-6">
-			<div className="max-w-7xl mx-auto flex items-center justify-between">
+		<header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
+			<div className="max-w-7xl mx-auto h-16 px-4 sm:px-6 flex items-center justify-between">
 				<div>
 					<Link to="/" className="flex items-center space-x-2">
 						<div className="flex items-center gap-2 hover:drop-shadow-[0_0_1em_rgba(50,255,100,0.8)]">
@@ -79,7 +79,7 @@ const Navbar = () => {
 									className={cn(
 										'nav-icon relative',
 										isActive('/add-expense') &&
-											'bg-primary/20 text-primary hover:bg-primary/30'
+											'bg-primary/20 text-primary hover:bg-primary/30',
 									)}
 								>
 									<Plus className="h-5 w-5" />
@@ -94,7 +94,7 @@ const Navbar = () => {
 									className={cn(
 										'nav-icon relative',
 										isActive('/tours') &&
-											'bg-primary/20 text-primary hover:bg-primary/30'
+											'bg-primary/20 text-primary hover:bg-primary/30',
 									)}
 								>
 									<Plane className="h-5 w-5" />
@@ -109,7 +109,7 @@ const Navbar = () => {
 									className={cn(
 										'nav-icon relative',
 										isActive('/summary') &&
-											'bg-primary/20 text-primary hover:bg-primary/30'
+											'bg-primary/20 text-primary hover:bg-primary/30',
 									)}
 								>
 									<BarChart className="h-5 w-5" />
@@ -163,7 +163,7 @@ const Navbar = () => {
 										className={cn(
 											'relative h-9 w-9 rounded-full flex items-center justify-center p-0',
 											(isActive('/my-expenses') || isActive('/settings')) &&
-												'bg-primary/20 text-primary hover:bg-primary/30'
+												'bg-primary/20 text-primary hover:bg-primary/30',
 										)}
 									>
 										<img
@@ -186,7 +186,7 @@ const Navbar = () => {
 									<DropdownMenuItem
 										className={cn(
 											'cursor-pointer',
-											isActive('/my-expenses') && 'bg-primary/20 text-primary'
+											isActive('/my-expenses') && 'bg-primary/20 text-primary',
 										)}
 										asChild
 									>
@@ -195,7 +195,7 @@ const Navbar = () => {
 									<DropdownMenuItem
 										className={cn(
 											'cursor-pointer',
-											isActive('/ledger') && 'bg-primary/20 text-primary'
+											isActive('/ledger') && 'bg-primary/20 text-primary',
 										)}
 										asChild
 									>
@@ -204,7 +204,7 @@ const Navbar = () => {
 									<DropdownMenuItem
 										className={cn(
 											'cursor-pointer',
-											isActive('/settings') && 'bg-primary/20 text-primary'
+											isActive('/settings') && 'bg-primary/20 text-primary',
 										)}
 										asChild
 									>
@@ -228,7 +228,7 @@ const Navbar = () => {
 									className={cn(
 										'nav-icon',
 										isActive('/summary') &&
-											'bg-primary/20 text-primary hover:bg-primary/30'
+											'bg-primary/20 text-primary hover:bg-primary/30',
 									)}
 								>
 									<BarChart className="h-5 w-5 mr-2" />
@@ -241,7 +241,7 @@ const Navbar = () => {
 									variant="default"
 									className={cn(
 										'nav-icon',
-										isActive('/login') && 'bg-primary/30 border-primary/20'
+										isActive('/login') && 'bg-primary/30 border-primary/20',
 									)}
 								>
 									<LogIn className="h-5 w-5 mr-2" />
