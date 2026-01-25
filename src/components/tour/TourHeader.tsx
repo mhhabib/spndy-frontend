@@ -62,7 +62,7 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 	}, [tourData]);
 
 	return (
-		<div className="max-w-6xl mx-auto p-4 bg-background text-foreground transition-colors">
+		<div className="max-w-6xl mx-auto p-4 text-foreground transition-colors">
 			<h1 className="text-3xl font-bold text-sky-500 text-center mb-2">
 				{tourData.name}
 			</h1>
@@ -112,7 +112,7 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 						'flex items-center gap-2 border-border transition-colors',
 						safeShareLink.isPublic
 							? 'text-destructive hover:bg-destructive/10'
-							: 'text-green-600 dark:text-green-400 hover:bg-green-500/10'
+							: 'text-green-600 dark:text-green-400 hover:bg-green-500/10',
 					)}
 				>
 					{safeShareLink.isPublic ? (
@@ -139,5 +139,3 @@ const TourHeader: React.FC<TourHeaderProps> = ({
 };
 
 export default TourHeader;
-
-
