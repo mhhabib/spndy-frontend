@@ -145,9 +145,9 @@ const MyExpenses = () => {
 								{formatDateRange()}
 							</Button>
 						</PopoverTrigger>
-						<PopoverContent className="w-auto p-0" align="end">
-							<div className="flex gap-2 p-4">
-								<div>
+						<PopoverContent className="w-auto p-0 max-w-[95vw]" align="end">
+							<div className="flex flex-col sm:flex-row gap-2 p-2 sm:p-4">
+								<div className="w-full sm:w-auto">
 									<CalendarComponent
 										mode="range"
 										month={leftCalendarMonth}
@@ -161,7 +161,7 @@ const MyExpenses = () => {
 										className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
 									/>
 								</div>
-								<div>
+								<div className="w-full sm:w-auto">
 									<CalendarComponent
 										mode="range"
 										month={rightCalendarMonth}
