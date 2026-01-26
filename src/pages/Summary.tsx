@@ -17,7 +17,7 @@ import ExpenseChart from '@/utils/ExpenseChart';
 import ExpenseExport from '@/components/ExpenseExport';
 import { useApiClient } from '@/utils/apiClient';
 import ExpenseSearch from '@/components/ExpenseSearch';
-import './calendar-improvements.css'; 
+import './calendar-improvements.css'; // Import the custom calendar styles
 
 interface CategoryData {
 	name: string;
@@ -31,6 +31,12 @@ const Summary = () => {
 		from: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
 		to: new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0),
 	});
+	const [leftCalendarMonth, setLeftCalendarMonth] = useState<Date>(
+		new Date(new Date().getFullYear(), new Date().getMonth(), 1),
+	);
+	const [rightCalendarMonth, setRightCalendarMonth] = useState<Date>(
+		new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1),
+	);
 	const [totalExpenses, setTotalExpenses] = useState(0);
 	const [expenses, setExpenses] = useState<Expense[]>([]);
 	const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
@@ -139,18 +145,36 @@ const Summary = () => {
 							</Button>
 						</PopoverTrigger>
 						<PopoverContent className="w-auto p-0" align="end">
-							<CalendarComponent
-								initialFocus
-								mode="range"
-								defaultMonth={dateRange?.from}
-								selected={dateRange}
-								onSelect={setDateRange}
-								numberOfMonths={2}
-								captionLayout="dropdown-buttons"
-								fromYear={2024}
-								toYear={2099}
-								className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
-							/>
+							<div className="flex gap-2 p-4">
+								<div>
+									<CalendarComponent
+										mode="range"
+										month={leftCalendarMonth}
+										onMonthChange={setLeftCalendarMonth}
+										selected={dateRange}
+										onSelect={setDateRange}
+										numberOfMonths={1}
+										captionLayout="dropdown-buttons"
+										fromYear={2024}
+										toYear={2099}
+										className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
+									/>
+								</div>
+								<div>
+									<CalendarComponent
+										mode="range"
+										month={rightCalendarMonth}
+										onMonthChange={setRightCalendarMonth}
+										selected={dateRange}
+										onSelect={setDateRange}
+										numberOfMonths={1}
+										captionLayout="dropdown-buttons"
+										fromYear={2024}
+										toYear={2099}
+										className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
+									/>
+								</div>
+							</div>
 						</PopoverContent>
 					</Popover>
 
