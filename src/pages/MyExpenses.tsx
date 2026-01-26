@@ -17,6 +17,7 @@ import ExpenseChart from '@/utils/ExpenseChart';
 import ExpenseExport from '@/components/ExpenseExport';
 import { useApiClient } from '@/utils/apiClient';
 import ExpenseSearch from '@/components/ExpenseSearch';
+import './calendar-improvements.css';
 
 interface CategoryData {
 	name: string;
@@ -73,7 +74,7 @@ const MyExpenses = () => {
 						name: item.categoryName,
 						value: item.total,
 						color: colors[index % colors.length],
-					})
+					}),
 				);
 				setCategoryData(categories);
 
@@ -146,6 +147,9 @@ const MyExpenses = () => {
 								selected={dateRange}
 								onSelect={setDateRange}
 								numberOfMonths={2}
+								captionLayout="dropdown-buttons"
+								fromYear={2024}
+								toYear={2099}
 								className="rounded-md border border-border/50 bg-background text-foreground shadow-sm"
 							/>
 						</PopoverContent>

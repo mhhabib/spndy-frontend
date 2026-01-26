@@ -225,7 +225,7 @@ const AddExpense = () => {
 
 		try {
 			const selectedCategory = categories.find(
-				(cat) => cat.name === formData.category
+				(cat) => cat.name === formData.category,
 			);
 			if (!selectedCategory) throw new Error('Selected category not found');
 
@@ -255,7 +255,7 @@ const AddExpense = () => {
 		} catch (error) {
 			console.error(
 				`Error ${isEditing ? 'updating' : 'adding'} expense:`,
-				error
+				error,
 			);
 			// If the error has a status & data (from useApiClient), show a helpful message
 			const data = (error as any)?.data;
@@ -267,7 +267,7 @@ const AddExpense = () => {
 					? `Failed to ${isEditing ? 'update' : 'add'} expense: ${serverMsg}`
 					: `Failed to ${
 							isEditing ? 'update' : 'add'
-					  } expense. Please try again.`,
+						} expense. Please try again.`,
 				variant: 'destructive',
 			});
 		} finally {
