@@ -123,15 +123,17 @@ const Login = () => {
 					)}
 				</Button>
 
-				<p className="text-center text-sm text-muted-foreground pt-2">
-					Don't have an account?{' '}
-					<Link
-						to="/ticket"
-						className="text-foreground font-medium hover:underline underline-offset-4"
-					>
-						Sign up
-					</Link>
-				</p>
+				{isDev && (
+					<p className="text-center text-sm text-muted-foreground pt-2">
+						Don't have an account?{' '}
+						<Link
+							to="/ticket"
+							className="text-foreground font-medium hover:underline underline-offset-4"
+						>
+							Sign up
+						</Link>
+					</p>
+				)}
 			</form>
 
 			{isDev && (
